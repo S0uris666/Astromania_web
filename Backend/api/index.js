@@ -1,3 +1,4 @@
+// Backend/api/index.js
 import dotenv from "dotenv";
 import serverless from "serverless-http";
 import app from "../src/app.js";
@@ -6,20 +7,28 @@ import { connectDB } from "../src/config/db.js";
 dotenv.config();
 
 
+
+app.get("/api/health", (_req, res) => res.json({ ok: true, where: "express", ts: Date.now() }));
+app.get("/api/ping",   (_req, res) => res.json({ ok: true, where: "express", ts: Date.now() }));
+
 let dbReady;
 async function ensureDB() {
-  if (!dbReady) dbReady = connectDB();
+  if (!dbReady) {
+    dbReady = connectDB().catch((e) => {
+      console.error("DB connect error:", e?.message || e);
+      throw e;
+    });
+  }
   return dbReady;
 }
 
-// Health siempre disponible
-app.get("/api/health", (_req, res) => res.json({ ok: true, time: Date.now() }));
+const expressHandler = serverless(app);
 
-// Exporta el handler para Vercel
-const handler = async (req, res) => {
+export default async function handler(req, res) {
+  // Deja pasar health/ping sin DB
+  if (req.url?.startsWith("/api/health") || req.url?.startsWith("/api/ping")) {
+    return expressHandler(req, res);
+  }
   await ensureDB();
-  const wrapped = serverless(app);
-  return wrapped(req, res);
-};
-
-export default handler;
+  return expressHandler(req, res);
+}

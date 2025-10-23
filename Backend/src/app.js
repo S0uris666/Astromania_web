@@ -35,5 +35,5 @@ app.use("/api", eventRouter);
 app.use("/api", serviceProductRouter)
 app.use("/api", routerCloudinary);
 
-
+app.options("*", cors()); 
 export default app;
