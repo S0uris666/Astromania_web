@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://astromania-web.onrender.com/api/:path*"
+      "destination": "https://astromania-web-nine.vercel.app/api/:path*"
     }
   ]
 }
