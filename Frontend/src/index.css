@@ -1,0 +1,108 @@
+@import "tailwindcss";
+@plugin "daisyui" {
+  themes: "night";
+}
+
+
+/* Fondos principales */
+.bg-space {
+  background-color: #0b0f17;
+}
+.bg-deep-space {
+  background-color: #0b0d17;
+}
+.bg-deep-space-transp {
+  background-color: #0b0d17b8;
+} /* Fondo principal oscuro */
+.bg-space-60 {
+  background-color: rgba(11, 15, 25, 0.6);
+} /* Fondo con opacidad */
+.bg-deepSpace {
+  background-color: #0f172a;
+} /* Secciones más oscuras */
+.bg-nebula {
+  background-color: #1e293b;
+} /* Tonos intermedios */
+
+.bg-galaxy {
+  background-color: #9333ea;
+}
+.bg-galaxy:hover {
+  background-color: #5d2097;
+}
+
+.hover-after-galaxy::after {
+  background-color: #9333ea;
+  transition: all 0.3s;
+}
+
+.hover-after-galaxy:hover::after {
+  background-color: #5d2097;
+}
+
+/* Textos */
+/* Azul brillante */
+.text-galaxy {
+  color: #9333ea;
+}
+.hover-text-galaxy:hover {
+  color: #ba6bfe;
+} /* Morado galaxia */
+/* Rojo meteoro */
+
+/* Bordes y sombras */
+
+.border-galaxy {
+  border-color: #9333ea;
+}
+
+/* Botones */
+
+.btn-galaxy {
+  background-color: #9333ea;
+  color: #ffffff;
+}
+.btn-galaxy:hover {
+  background-color: #5d2097;
+}
+
+/* Cards flip */
+.card {
+  perspective: 1000px;
+}
+
+.card-inner {
+  position: relative;
+  width: 100%;
+  height: 15rem; /* Ajusta según tu tarjeta */
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.card:hover .card-inner {
+  transform: rotateY(180deg);
+}
+
+.card-front,
+.card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 0.5rem; /* rounded-lg */
+  backface-visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-front {
+  background-color: #1f2937; /* gris oscuro */
+  color: white;
+}
+
+.card-back {
+  background-color: #1f2937; /* otro gris más sobrio */
+  color: white;
+  transform: rotateY(180deg);
+}
