@@ -3,6 +3,7 @@ import User from "../models/User.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
+
 import slugify from "slugify";
 import {
   cleanEmptyStrings,
@@ -19,6 +20,8 @@ import {
 } from "../utils/utils.js";
 
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
+
+const isProd = process.env.NODE_ENV === "production";
 //
 
 export const createUser = async (req, res) => {
@@ -105,7 +108,13 @@ export const loginUser = async (req, res) => {
     //sign token
     jwt.sign(payload, process.env.SECRET, { expiresIn: 3600 }, (err, token) => {
       if (err) throw err;
-      res.cookie("token",token)
+      res.cookie("token",token, {
+  httpOnly: true,
+  secure: isProd,           // en Vercel = true (HTTPS). Si no pones secure en prod, el browser NO la guarda
+  sameSite: isProd ? "none" : "lax", // "none" para enviar en cross-site; con rewrites puedes dejar "lax"
+  path: "/",
+  maxAge: 7 * 24 * 60 * 60 * 1000
+})
       res.json({ message: "Login exitoso", token  });
     });
 
