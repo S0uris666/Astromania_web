@@ -13,7 +13,7 @@ import paymentRouter from "./routes/payment.route.js";
 import serviceProductRouter from "./routes/service.product.route.js";
 import routerCloudinary from "./routes/image.route.js";
 
-
+app.set("trust proxy", 1);
 // Middlewares
 app.use(cors({
   origin:["http://localhost:5174","http://localhost:5173", "http://localhost:3000","https://astromania-web-nsgx.vercel.app"],
