@@ -3,8 +3,6 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 const app = express();
 
-
-
 //rutas
 import eventRouter from "./routes/event.route.js";
 import userRouter from "./routes/user.routes.js";

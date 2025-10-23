@@ -1,20 +1,7 @@
-import client, { API_BASE_URL } from "./client.js";
+import axios from "axios";
+import client from "./client.js";
 
-const joinBasePath = (base, path) => {
-  const normalizedBase = base.replace(/\/+$/, "");
-  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
-  return `${normalizedBase}${normalizedPath}`;
-};
-
-const ensureAbsoluteURL = (url) => {
-  if (/^https?:\/\//i.test(url) || typeof window === "undefined") return url;
-  const prefix = window.location.origin.replace(/\/+$/, "");
-  const suffix = url.startsWith("/") ? url : `/${url}`;
-  return `${prefix}${suffix}`;
-};
-
-const envWebhook = (import.meta.env.VITE_MP_WEBHOOK_URL || "").trim();
-const notificationURL = envWebhook || ensureAbsoluteURL(joinBasePath(API_BASE_URL, "/payments/notification"));
+const API = import.meta.env.VITE_BACKEND_URL;
 
 // Crear preferencia de pago
 export const createPaymentPreference = async (items, backUrls = {}) => {
@@ -33,7 +20,7 @@ export const createPaymentPreference = async (items, backUrls = {}) => {
         pending: backUrls.pending || `${window.location.origin}/payment/pending`,
       },
       auto_return: "approved",
-      notification_url: notificationURL,
+      notification_url: `${API}/payments/notification`,
       payer: {
         name: backUrls.payerName || "",
         email: backUrls.payerEmail || ""
@@ -51,7 +38,7 @@ export const createPaymentPreference = async (items, backUrls = {}) => {
 // Obtener estado del pago
 export const getPaymentStatus = async (paymentId) => {
   try {
-    const response = await client.get(`/payments/status/${paymentId}`);
+    const response = await axios.get(`${API}/payments/status/${paymentId}`);
     return response.data;
   } catch (error) {
     console.error("Error getting payment status:", error);

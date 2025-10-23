@@ -1,6 +1,5 @@
-import { API_BASE_URL } from "./client.js";
-
-const CONTACT_ENDPOINT = `${API_BASE_URL}/contact`;
+const API = import.meta.env.VITE_BACKEND_URL;
+const CONTACT_ENDPOINT = API ? `${API}/contact` : "/api/contact";
 
 export const sendMessage = async ({
   name,
