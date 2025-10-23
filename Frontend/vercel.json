@@ -4,8 +4,5 @@
       "source": "/api/:path*",
       "destination": "https://astromania-web-nine.vercel.app/api/:path*"
     }
-  ],
-  "redirects": [
-    { "source": "/api", "destination": "/api/", "permanent": false }
   ]
 }
