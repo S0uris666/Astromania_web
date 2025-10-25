@@ -5,7 +5,10 @@ import { UserContext } from "../../../context/user/UserContext";
 
 const formatPrice = (value) => {
   if (typeof value !== "number") return "A cotizar";
-  return new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP" }).format(value);
+  return new Intl.NumberFormat("es-CL", {
+    style: "currency",
+    currency: "CLP",
+  }).format(value);
 };
 
 const PLACEHOLDER_PRODUCT = "https://placehold.co/1200x800?text=Producto";
@@ -35,6 +38,15 @@ const cloudinaryLarge = (urlOrId) => {
 
 const cloudinaryThumb = (urlOrId) =>
   cloudinaryLarge(urlOrId)?.replace("w_1400,h_900", "w_360,h_360") || urlOrId;
+const slugify = (value) => {
+  if (!value && value !== 0) return "";
+  return String(value)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)+/g, "");
+};
 
 const normalizeImages = (item) => {
   const images = item?.images ?? [];
@@ -78,7 +90,11 @@ const normalizeLinks = (links = []) =>
       if (link && typeof link === "object") {
         const url = (link.url || "").trim();
         if (!url) return null;
-        return { label: (link.label || link.title || "Ver recurso").trim() || "Ver recurso", url };
+        return {
+          label:
+            (link.label || link.title || "Ver recurso").trim() || "Ver recurso",
+          url,
+        };
       }
       return null;
     })
@@ -113,18 +129,41 @@ export const ServiceProductSingle = () => {
       return param ?? "";
     }
   }, [param]);
+  const normalizedParamTrimmed = useMemo(
+    () => normalizedParam.trim(),
+    [normalizedParam]
+  );
+
+  const normalizedParamSlug = useMemo(() => {
+    return (
+      slugify(normalizedParamTrimmed) || normalizedParamTrimmed.toLowerCase()
+    );
+  }, [normalizedParamTrimmed]);
 
   const item = useMemo(() => {
     if (initial) return initial;
     if (!serviceProduct?.length) return null;
-    return (
-      serviceProduct.find((entry) => entry.slug === normalizedParam) ||
-      serviceProduct.find(
-        (entry) => String(entry._id || entry.id) === String(normalizedParam)
-      ) ||
-      null
+    const matchBySlug = serviceProduct.find((entry) => {
+      const entrySlug = slugify(entry?.slug);
+      if (!entrySlug) return false;
+      return entrySlug === normalizedParamSlug;
+    });
+    if (matchBySlug) return matchBySlug;
+
+    const matchById = serviceProduct.find(
+      (entry) =>
+        String(entry?._id || entry?.id || "") === normalizedParamTrimmed
     );
-  }, [initial, serviceProduct, normalizedParam]);
+    if (matchById) return matchById;
+
+    const matchByTitle = serviceProduct.find((entry) => {
+      const titleSlug = slugify(entry?.title);
+      if (!titleSlug) return false;
+      return titleSlug === normalizedParamSlug;
+    });
+
+    return matchByTitle || null;
+  }, [initial, serviceProduct, normalizedParamTrimmed, normalizedParamSlug]);
 
   const itemId = useMemo(
     () => (item?._id || item?.id ? String(item._id || item.id) : null),
@@ -240,9 +279,15 @@ export const ServiceProductSingle = () => {
         <section className="space-y-6">
           <header className="space-y-3">
             <div className="flex items-center gap-2 flex-wrap text-sm">
-              <span className="badge badge-secondary/90">{TYPE_LABEL[type] || type}</span>
+              <span className="badge badge-secondary/90">
+                {TYPE_LABEL[type] || type}
+              </span>
               {type === "product" && (
-                <span className={`badge badge-sm ${hasStock ? "badge-success/90" : "badge-error/90"}`}>
+                <span
+                  className={`badge badge-sm ${
+                    hasStock ? "badge-success/90" : "badge-error/90"
+                  }`}
+                >
                   {hasStock ? `Stock: ${item.stock}` : "Sin stock"}
                 </span>
               )}
@@ -257,13 +302,19 @@ export const ServiceProductSingle = () => {
                 </span>
               ) : null}
               {type === "activity" && item.location ? (
-                <span className="badge badge-ghost badge-sm">{item.location}</span>
+                <span className="badge badge-ghost badge-sm">
+                  {item.location}
+                </span>
               ) : null}
-              {item.active === false && <span className="badge badge-outline">No disponible</span>}
+              {item.active === false && (
+                <span className="badge badge-outline">No disponible</span>
+              )}
             </div>
             <h1 className="text-3xl font-bold tracking-tight">{item.title}</h1>
             {item.shortDescription ? (
-              <p className="text-base text-base-content/80 leading-relaxed">{item.shortDescription}</p>
+              <p className="text-base text-base-content/80 leading-relaxed">
+                {item.shortDescription}
+              </p>
             ) : null}
           </header>
 
@@ -315,11 +366,16 @@ export const ServiceProductSingle = () => {
                     className="btn btn-primary"
                     disabled={!hasStock}
                     onClick={handleAddToCart}
-                    title={hasStock ? "Añadir al carrito" : "Sin stock disponible"}
+                    title={
+                      hasStock ? "Añadir al carrito" : "Sin stock disponible"
+                    }
                   >
                     Añadir al carrito
                   </button>
-                  <button className="btn btn-ghost" onClick={() => navigate(-1)}>
+                  <button
+                    className="btn btn-ghost"
+                    onClick={() => navigate(-1)}
+                  >
                     Volver
                   </button>
                 </div>
@@ -333,7 +389,10 @@ export const ServiceProductSingle = () => {
                   <Link to="/contacto" className="btn btn-primary">
                     Contactar
                   </Link>
-                  <button className="btn btn-ghost" onClick={() => navigate(-1)}>
+                  <button
+                    className="btn btn-ghost"
+                    onClick={() => navigate(-1)}
+                  >
                     Volver
                   </button>
                 </div>
@@ -343,7 +402,9 @@ export const ServiceProductSingle = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-base-content/80">
             {item.category ? <div>Categoría: {item.category}</div> : null}
-            {type === "product" && item.delivery ? <div>Entrega: {item.delivery}</div> : null}
+            {type === "product" && item.delivery ? (
+              <div>Entrega: {item.delivery}</div>
+            ) : null}
             {type === "service" && serviceLocations.length ? (
               <div className="sm:col-span-2">
                 Ubicaciones: {serviceLocations.join(", ")}
