@@ -1,6 +1,5 @@
 import ical from "ical-generator";
 
-const DEFAULT_TIMEZONE = "America/Santiago";
 const DEFAULT_BASE_URL = "https://astromania-web-nsgx.vercel.app";
 
 
@@ -17,7 +16,6 @@ export const buildEventsCalendar = (events = [], options = {}) => {
     calendarName = "Astromania - Eventos",
     calendarDescription = "Eventos publicados de Astromania",
     baseUrl = process.env.PUBLIC_SITE_URL,
-    timezone = DEFAULT_TIMEZONE,
   } = options;
 
   const sanitizedBaseUrl = trimTrailingSlash(baseUrl || DEFAULT_BASE_URL);
@@ -25,30 +23,21 @@ export const buildEventsCalendar = (events = [], options = {}) => {
   const calendar = ical({
     name: calendarName,
     description: calendarDescription,
-    timezone,
     prodId: { company: "Astromania", product: "CalendarFeed", language: "ES" },
     method: "PUBLISH",
   });
 
-  if (typeof calendar.timezone === "function") {
-    try {
-      calendar.timezone(timezone);
-    } catch {
-      /* fallback silently if timezone helper is unavailable */
-    }
-  }
-
   events.forEach((ev) => {
     const start = toDateOrNull(ev?.startDateTime);
     if (!start) return;
-
     const end = toDateOrNull(ev?.endDateTime);
 
     const eventConfig = {
       id: String(ev._id),
       start,
       summary: ev.title || "Evento sin titulo",
-      timezone,
+      timezone: null,
+      floating: false,
     };
 
     if (end) eventConfig.end = end;

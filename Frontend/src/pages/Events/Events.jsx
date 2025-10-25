@@ -238,6 +238,9 @@ export function EventsCalendarPage() {
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between mb-4">
                 <div className="space-y-1">
                   <h1 className="card-title text-2xl">Calendario de eventos astronomicos</h1>
+                  <p className="text-sm text-base-content/70">
+                    El feed iCal y el calendario muestran solo eventos publicados para que puedas seguirlos en tu agenda.
+                  </p>
                 </div>
                 <div className="flex flex-col gap-3 sm:items-end sm:min-w-[240px]">
                   <a
@@ -259,16 +262,17 @@ export function EventsCalendarPage() {
                       className="toggle toggle-primary"
                       checked={weekendsVisible}
                       onChange={() => setWeekendsVisible((v) => !v)}
-                      aria-label="Alternar visualización de fines de semana"
+                      aria-label="Alternar visualizacion de fines de semana"
                     />
                   </div>
 
                   <p className="text-xs text-base-content/60 max-w-xs text-left sm:text-right">
-                    Si el calendario no se abre automáticamente, copia esta URL e inscríbela manualmente:
+                    Si el calendario no se abre automaticamente, copia esta URL e inscribela manualmente:
                     <span className="block font-mono break-all mt-1">{icsFeedUrl}</span>
                   </p>
                 </div>
               </div>
+
               <div
                 className="
                   [&_.fc-theme-standard]:[--fc-list-bg-color:transparent]
@@ -280,7 +284,7 @@ export function EventsCalendarPage() {
                   plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
                   locales={[esLocale]}
                   locale="es"
-                  buttonText={{ today: "Hoy", month: "Mes", week: "Semana", day: "Día", list: "Lista" }}
+                  buttonText={{ today: "Hoy", month: "Mes", week: "Semana", day: "Dia", list: "Lista" }}
                   headerToolbar={headerToolbar}
                   initialView={initialView}
                   height="auto"
