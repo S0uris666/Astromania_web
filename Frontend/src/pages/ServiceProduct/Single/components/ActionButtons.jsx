@@ -1,6 +1,14 @@
-import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 
+/**
+ * @param {{
+ *   isProduct: boolean;
+ *   priceLabel: string;
+ *   hasStock: boolean;
+ *   onAddToCart: () => void;
+ *   onBack: () => void;
+ * }} props
+ */
 export const ActionButtons = ({
   isProduct,
   priceLabel,
@@ -42,10 +50,3 @@ export const ActionButtons = ({
   </div>
 );
 
-ActionButtons.propTypes = {
-  isProduct: PropTypes.bool.isRequired,
-  priceLabel: PropTypes.string.isRequired,
-  hasStock: PropTypes.bool.isRequired,
-  onAddToCart: PropTypes.func.isRequired,
-  onBack: PropTypes.func.isRequired,
-};

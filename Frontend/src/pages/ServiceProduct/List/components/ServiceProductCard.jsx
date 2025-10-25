@@ -1,4 +1,3 @@
-import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import {
   TYPE_LABEL,
@@ -7,6 +6,12 @@ import {
   buildServiceInfo,
 } from "../serviceProductList.helpers";
 
+/**
+ * @param {{
+ *  item: Record<string, any>;
+ *  onAddToCart: (item: Record<string, any>) => void;
+ * }} props
+ */
 export const ServiceProductCard = ({ item, onAddToCart }) => {
   const type = String(item.type || "").toLowerCase();
   const href = `/servicios-productos/${item.slug || item._id || item.id}`;
@@ -135,27 +140,5 @@ export const ServiceProductCard = ({ item, onAddToCart }) => {
       </div>
     </article>
   );
-};
-
-ServiceProductCard.propTypes = {
-  item: PropTypes.shape({
-    _id: PropTypes.string,
-    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    slug: PropTypes.string,
-    type: PropTypes.string,
-    title: PropTypes.string,
-    shortDescription: PropTypes.string,
-    description: PropTypes.string,
-    price: PropTypes.number,
-    stock: PropTypes.number,
-    delivery: PropTypes.string,
-    durationMinutes: PropTypes.number,
-    capacity: PropTypes.number,
-    location: PropTypes.string,
-    locations: PropTypes.arrayOf(PropTypes.string),
-    tags: PropTypes.arrayOf(PropTypes.string),
-    images: PropTypes.array,
-  }).isRequired,
-  onAddToCart: PropTypes.func.isRequired,
 };
 

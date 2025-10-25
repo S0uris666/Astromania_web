@@ -7,15 +7,26 @@ import {
 } from "./serviceProductList.helpers";
 import { FilterBar } from "./components/FilterBar";
 import { ServiceProductCard } from "./components/ServiceProductCard";
+import { ServiceProductSkeleton } from "./components/ServiceProductSkeleton";
 
 export const ServiceProductList = () => {
   const { addToCart } = useContext(UserContext);
   const { serviceProduct = [], getSP } = useContext(ServiceProductContext);
 
   const [filterType, setFilterType] = useState("all");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getSP().catch(() => {});
+    let mounted = true;
+    setLoading(true);
+    getSP()
+      .catch(() => {})
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
+    return () => {
+      mounted = false;
+    };
   }, [getSP]);
 
   const items = useMemo(
@@ -46,7 +57,9 @@ export const ServiceProductList = () => {
         onChange={setFilterType}
       />
 
-      {!filteredItems.length ? (
+      {loading ? (
+        <ServiceProductSkeleton />
+      ) : !filteredItems.length ? (
         <div className="rounded-xl border border-base-300 p-8 text-base-content/70 text-center">
           No encontramos elementos para esta categoria por ahora.
         </div>

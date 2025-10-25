@@ -1,5 +1,10 @@
-import PropTypes from "prop-types";
-
+/**
+ * @param {{
+ *  filters: Array<{value: string, label: string}>;
+ *  active: string;
+ *  onChange: (value: string) => void;
+ * }} props
+ */
 export const FilterBar = ({ filters, active, onChange }) => {
   if (!filters.length) return null;
 
@@ -19,16 +24,5 @@ export const FilterBar = ({ filters, active, onChange }) => {
       ))}
     </div>
   );
-};
-
-FilterBar.propTypes = {
-  filters: PropTypes.arrayOf(
-    PropTypes.shape({
-      value: PropTypes.string.isRequired,
-      label: PropTypes.string.isRequired,
-    })
-  ).isRequired,
-  active: PropTypes.string.isRequired,
-  onChange: PropTypes.func.isRequired,
 };
 

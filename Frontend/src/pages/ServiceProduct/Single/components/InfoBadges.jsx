@@ -1,5 +1,17 @@
-import PropTypes from "prop-types";
-
+/**
+ * @param {{
+ *   typeLabel: string;
+ *   isProduct: boolean;
+ *   stock?: number;
+ *   hasStock: boolean;
+ *   isService: boolean;
+ *   durationMinutes?: number;
+ *   capacity?: number;
+ *   isActivity: boolean;
+ *   location?: string;
+ *   isActive?: boolean;
+ * }} props
+ */
 export const InfoBadges = ({
   typeLabel,
   isProduct,
@@ -37,23 +49,3 @@ export const InfoBadges = ({
   </div>
 );
 
-InfoBadges.propTypes = {
-  typeLabel: PropTypes.string.isRequired,
-  isProduct: PropTypes.bool.isRequired,
-  stock: PropTypes.number,
-  hasStock: PropTypes.bool.isRequired,
-  isService: PropTypes.bool.isRequired,
-  durationMinutes: PropTypes.number,
-  capacity: PropTypes.number,
-  isActivity: PropTypes.bool.isRequired,
-  location: PropTypes.string,
-  isActive: PropTypes.bool,
-};
-
-InfoBadges.defaultProps = {
-  stock: 0,
-  durationMinutes: undefined,
-  capacity: undefined,
-  location: undefined,
-  isActive: true,
-};

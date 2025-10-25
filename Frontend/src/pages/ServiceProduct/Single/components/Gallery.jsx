@@ -1,5 +1,6 @@
-import PropTypes from "prop-types";
-
+/**
+ * @param {{images: Array<{src: string, thumb: string, alt: string}>, selectedIndex: number, onSelectImage: (idx: number) => void}} props
+ */
 export const ServiceProductGallery = ({
   images,
   selectedIndex,
@@ -51,16 +52,3 @@ export const ServiceProductGallery = ({
     </section>
   );
 };
-
-ServiceProductGallery.propTypes = {
-  images: PropTypes.arrayOf(
-    PropTypes.shape({
-      src: PropTypes.string.isRequired,
-      thumb: PropTypes.string.isRequired,
-      alt: PropTypes.string.isRequired,
-    })
-  ).isRequired,
-  selectedIndex: PropTypes.number.isRequired,
-  onSelectImage: PropTypes.func.isRequired,
-};
-

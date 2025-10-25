@@ -1,6 +1,8 @@
-import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 
+/**
+ * @param {{items: Array<{label: string, to?: string}>}} props
+ */
 export const BreadcrumbsTrail = ({ items }) => {
   if (!items.length) return null;
 
@@ -22,13 +24,3 @@ export const BreadcrumbsTrail = ({ items }) => {
     </nav>
   );
 };
-
-BreadcrumbsTrail.propTypes = {
-  items: PropTypes.arrayOf(
-    PropTypes.shape({
-      label: PropTypes.string.isRequired,
-      to: PropTypes.string,
-    })
-  ).isRequired,
-};
-

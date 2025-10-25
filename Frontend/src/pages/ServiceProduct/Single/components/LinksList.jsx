@@ -1,5 +1,6 @@
-import PropTypes from "prop-types";
-
+/**
+ * @param {{links: Array<{url: string, label: string}>}} props
+ */
 export const LinksList = ({ links }) => {
   if (!links.length) return null;
 
@@ -23,14 +24,5 @@ export const LinksList = ({ links }) => {
       </div>
     </div>
   );
-};
-
-LinksList.propTypes = {
-  links: PropTypes.arrayOf(
-    PropTypes.shape({
-      url: PropTypes.string.isRequired,
-      label: PropTypes.string.isRequired,
-    })
-  ).isRequired,
 };
 

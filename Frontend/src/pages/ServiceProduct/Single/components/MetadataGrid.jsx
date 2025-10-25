@@ -1,9 +1,16 @@
-import PropTypes from "prop-types";
-
+/**
+ * @param {{
+ *  category?: string;
+ *  delivery?: string;
+ *  locations?: string[];
+ *  isProduct: boolean;
+ *  isService: boolean;
+ * }} props
+ */
 export const MetadataGrid = ({
   category,
   delivery,
-  locations,
+  locations = [],
   isProduct,
   isService,
 }) => {
@@ -11,26 +18,12 @@ export const MetadataGrid = ({
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-base-content/80">
-      {category ? <div>Categoría: {category}</div> : null}
+      {category ? <div>Categoria: {category}</div> : null}
       {isProduct && delivery ? <div>Entrega: {delivery}</div> : null}
       {isService && locations.length ? (
         <div className="sm:col-span-2">Ubicaciones: {locations.join(", ")}</div>
       ) : null}
     </div>
   );
-};
-
-MetadataGrid.propTypes = {
-  category: PropTypes.string,
-  delivery: PropTypes.string,
-  locations: PropTypes.arrayOf(PropTypes.string),
-  isProduct: PropTypes.bool.isRequired,
-  isService: PropTypes.bool.isRequired,
-};
-
-MetadataGrid.defaultProps = {
-  category: undefined,
-  delivery: undefined,
-  locations: [],
 };
 

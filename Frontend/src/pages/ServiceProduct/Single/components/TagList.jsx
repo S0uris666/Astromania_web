@@ -1,5 +1,6 @@
-import PropTypes from "prop-types";
-
+/**
+ * @param {{tags: string[]}} props
+ */
 export const TagList = ({ tags }) => {
   if (!tags.length) return null;
 
@@ -12,9 +13,5 @@ export const TagList = ({ tags }) => {
       ))}
     </div>
   );
-};
-
-TagList.propTypes = {
-  tags: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
 
