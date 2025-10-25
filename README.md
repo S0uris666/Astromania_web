@@ -13,7 +13,7 @@ Astromanía es una aplicación web full‑stack para gestionar eventos astronóm
 - Frontend (React + Vite): SPA con Tailwind CSS v4 + DaisyUI y React Router.
 
 ## Despliegue
-[https://astromaniaweb.netlify.app](https://astromaniaweb.netlify.app)
+[https://astromania-web-nsgx.vercel.app](https://astromania-web-nsgx.vercel.app)
 
 
 

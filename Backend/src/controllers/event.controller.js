@@ -1,10 +1,11 @@
 import Event from "../models/Event.model.js";
+import { buildEventsCalendar } from "../config/calendar.js";
 
 export const getAllEvents = async (req, res) => {
   try {
     const role = String(req.user?.role || "").toLowerCase();
     const isAdmin = role === "admin";
-    const isSuper = role === "superuser";
+    
 
     // filtro principal: admin ve todo; otros solo propios
     const baseFilter = isAdmin ? {} : { createdBy: req.user.id };
@@ -154,6 +155,25 @@ export const getPublicEventById = async (req, res) => {
     res.status(200).json(event);
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+};
+
+export const getEventsCalendarFeed = async (req, res) => {
+  try {
+    const events = await Event.find({ status: "published" })
+      .sort({ startDateTime: 1 })
+      .lean();
+
+    const calendar = buildEventsCalendar(events, {
+      baseUrl: process.env.PUBLIC_SITE_URL,
+    });
+
+    res.setHeader("Content-Type", "text/calendar; charset=utf-8");
+    res.setHeader("Content-Disposition", 'attachment; filename="astromania-events.ics"');
+    res.send(calendar.toString());
+  } catch (error) {
+    console.error("getEventsCalendarFeed error:", error);
+    res.status(500).json({ error: "No se pudo generar el calendario iCal" });
   }
 };
 

@@ -85,6 +85,30 @@ export function EventsCalendarPage() {
     getAllEvents();
   }, [getAllEvents]);
 
+  const windowOrigin = typeof window !== "undefined" ? window.location.origin : "";
+
+  const { icsFeedUrl, webcalFeedUrl } = useMemo(() => {
+    const rawBase = (import.meta.env.VITE_BACKEND_URL || "/api").replace(/\/$/, "");
+
+    const ensureAbsolute = (value) => {
+      if (/^https?:\/\//i.test(value)) return value;
+      if (windowOrigin) {
+        const needsSlash = value.startsWith("/") ? "" : "/";
+        return `${windowOrigin}${needsSlash}${value}`;
+      }
+      return value;
+    };
+
+    const absoluteBase = ensureAbsolute(rawBase);
+    const normalizedBase = absoluteBase.replace(/\/$/, "");
+    const httpFeedUrl = `${normalizedBase}/events/feed.ics`;
+    const webcalFeedUrl = /^https?:\/\//i.test(normalizedBase)
+      ? `${normalizedBase.replace(/^https?:\/\//i, "webcal://")}/events/feed.ics`
+      : null;
+
+    return { icsFeedUrl: httpFeedUrl, webcalFeedUrl };
+  }, [windowOrigin]);
+
   // ===== Datos de prueba (comentar si la API ya responde) =====
   const testEvents = [
     {
@@ -211,22 +235,42 @@ export function EventsCalendarPage() {
         <section className="lg:col-span-2">
           <div className="card bg-base-200 shadow-xl">
             <div className="card-body">
-              <div className="flex items-center justify-between mb-2">
-                <h1 className="card-title text-2xl">Calendario de eventos Astronómicos</h1>
-                <label className="label cursor-pointer gap-2">
-                  <span className="label-text">Mostrar fin de semana</span>
-                  <input
-                    type="checkbox"
-                    className="toggle toggle-primary"
-                    checked={weekendsVisible}
-                    onChange={() => setWeekendsVisible((v) => !v)}
-                  />
-                </label>
-              </div>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between mb-4">
+                <div className="space-y-1">
+                  <h1 className="card-title text-2xl">Calendario de eventos astronomicos</h1>
+                </div>
+                <div className="flex flex-col gap-3 sm:items-end sm:min-w-[240px]">
+                  <a
+                    href={webcalFeedUrl || icsFeedUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-outline btn-primary btn-sm gap-2 w-full sm:w-auto"
+                    title="Abrir o copiar el feed iCal de Astromania"
+                    aria-label="Abrir o copiar el feed iCal de Astromania"
+                  >
+                    <CalendarDays className="size-4" aria-hidden="true" />
+                    Suscribirse al feed iCal
+                  </a>
 
+                  <div className="flex items-center justify-between gap-3 w-full sm:w-auto rounded-lg border border-base-200 bg-base-100/70 px-3 py-2 shadow-sm">
+                    <span className="text-sm font-medium leading-tight">Mostrar fin de semana</span>
+                    <input
+                      type="checkbox"
+                      className="toggle toggle-primary"
+                      checked={weekendsVisible}
+                      onChange={() => setWeekendsVisible((v) => !v)}
+                      aria-label="Alternar visualización de fines de semana"
+                    />
+                  </div>
+
+                  <p className="text-xs text-base-content/60 max-w-xs text-left sm:text-right">
+                    Si el calendario no se abre automáticamente, copia esta URL e inscríbela manualmente:
+                    <span className="block font-mono break-all mt-1">{icsFeedUrl}</span>
+                  </p>
+                </div>
+              </div>
               <div
                 className="
-                  [&_.fc-theme-standard]:[--fc-page-bg-color:transparent]
                   [&_.fc-theme-standard]:[--fc-list-bg-color:transparent]
                   [&_.fc-theme-standard]:[--fc-today-bg-color:rgba(187,0,255,0.39)]
                   [&_.fc-theme-standard]:[--fc-now-indicator-color:rgba(187,0,255,0.39)]
@@ -447,3 +491,4 @@ export function EventsCalendarPage() {
 }
 
 export default EventsCalendarPage;
+
