@@ -239,7 +239,7 @@ export function EventsCalendarPage() {
                 <div className="space-y-1">
                   <h1 className="card-title text-2xl">Calendario de eventos astronomicos</h1>
                   <p className="text-sm text-base-content/70">
-                    El feed iCal y el calendario muestran solo eventos publicados para que puedas seguirlos en tu agenda.
+                    Si sincronizas con el calendario muestran solo eventos publicados para que puedas seguirlos en tu agenda.
                   </p>
                 </div>
                 <div className="flex flex-col gap-3 sm:items-end sm:min-w-[240px]">
@@ -252,7 +252,7 @@ export function EventsCalendarPage() {
                     aria-label="Abrir o copiar el feed iCal de Astromania"
                   >
                     <CalendarDays className="size-4" aria-hidden="true" />
-                    Suscribirse al feed iCal
+                    Sincroniza con tu Calendario
                   </a>
 
                   <div className="flex items-center justify-between gap-3 w-full sm:w-auto rounded-lg border border-base-200 bg-base-100/70 px-3 py-2 shadow-sm">
@@ -266,10 +266,7 @@ export function EventsCalendarPage() {
                     />
                   </div>
 
-                  <p className="text-xs text-base-content/60 max-w-xs text-left sm:text-right">
-                    Si el calendario no se abre automaticamente, copia esta URL e inscribela manualmente:
-                    <span className="block font-mono break-all mt-1">{icsFeedUrl}</span>
-                  </p>
+                  
                 </div>
               </div>
 

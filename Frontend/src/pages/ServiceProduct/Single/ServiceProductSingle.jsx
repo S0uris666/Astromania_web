@@ -129,6 +129,7 @@ export const ServiceProductSingle = () => {
       return param ?? "";
     }
   }, [param]);
+  
   const normalizedParamTrimmed = useMemo(
     () => normalizedParam.trim(),
     [normalizedParam]
