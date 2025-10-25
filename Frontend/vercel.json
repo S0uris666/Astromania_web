@@ -3,6 +3,10 @@
     {
       "source": "/api/:path*",
       "destination": "https://astromania-web-nine.vercel.app/api/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
