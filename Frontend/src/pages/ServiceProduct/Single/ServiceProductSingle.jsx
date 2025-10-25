@@ -36,6 +36,16 @@ const cloudinaryLarge = (urlOrId) => {
 const cloudinaryThumb = (urlOrId) =>
   cloudinaryLarge(urlOrId)?.replace("w_1400,h_900", "w_360,h_360") || urlOrId;
 
+const slugify = (value) => {
+  if (!value && value !== 0) return "";
+  return String(value)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)+/g, "");
+};
+
 const normalizeImages = (item) => {
   const images = item?.images ?? [];
   if (!images.length) {
@@ -114,17 +124,43 @@ export const ServiceProductSingle = () => {
     }
   }, [param]);
 
+  const normalizedParamTrimmed = useMemo(
+    () => normalizedParam.trim(),
+    [normalizedParam]
+  );
+
+  const normalizedParamSlug = useMemo(() => {
+    return slugify(normalizedParamTrimmed) || normalizedParamTrimmed.toLowerCase();
+  }, [normalizedParamTrimmed]);
+
   const item = useMemo(() => {
     if (initial) return initial;
     if (!serviceProduct?.length) return null;
-    return (
-      serviceProduct.find((entry) => entry.slug === normalizedParam) ||
-      serviceProduct.find(
-        (entry) => String(entry._id || entry.id) === String(normalizedParam)
-      ) ||
-      null
+    const matchBySlug = serviceProduct.find((entry) => {
+      const entrySlug = slugify(entry?.slug);
+      if (!entrySlug) return false;
+      return entrySlug === normalizedParamSlug;
+    });
+    if (matchBySlug) return matchBySlug;
+
+    const matchById = serviceProduct.find(
+      (entry) => String(entry?._id || entry?.id || "") === normalizedParamTrimmed
     );
-  }, [initial, serviceProduct, normalizedParam]);
+    if (matchById) return matchById;
+
+    const matchByTitle = serviceProduct.find((entry) => {
+      const titleSlug = slugify(entry?.title);
+      if (!titleSlug) return false;
+      return titleSlug === normalizedParamSlug;
+    });
+
+    return matchByTitle || null;
+  }, [
+    initial,
+    serviceProduct,
+    normalizedParamTrimmed,
+    normalizedParamSlug,
+  ]);
 
   const itemId = useMemo(
     () => (item?._id || item?.id ? String(item._id || item.id) : null),
