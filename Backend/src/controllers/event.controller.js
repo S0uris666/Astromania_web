@@ -1,180 +1,129 @@
-import Event from "../models/Event.model.js";
-import { buildEventsCalendar } from "../config/calendar.js";
+import {
+  listEventsForUser,
+  createEventForUser,
+  findEventById,
+  deleteEventById,
+  updateEventById,
+  ensureEventOwnership,
+  listPublicEvents,
+  buildCalendarFeed,
+} from "../services/event.service.js";
+import { sendSuccess, sendError } from "../utils/utils.js";
 
 export const getAllEvents = async (req, res) => {
   try {
-    const role = String(req.user?.role || "").toLowerCase();
-    const isAdmin = role === "admin";
-    
-
-    // filtro principal: admin ve todo; otros solo propios
-    const baseFilter = isAdmin ? {} : { createdBy: req.user.id };
-
-    // filtro opcional por status ?status=published|draft|cancelled
-    const { status } = req.query;
-    const filter = { ...baseFilter };
-    if (status && ["published", "draft", "cancelled"].includes(status)) {
-      filter.status = status;
-    }
-
-    // trae todo (published/draft/cancelled según filtro)
-    const events = await Event.find(filter)
-      .sort({ startDateTime: 1 })                 // o { createdAt: -1 }
-      .populate({ path: "createdBy", select: "username email role" }); // opcional
-
-    res.status(200).json(events);
+    const events = await listEventsForUser(req.user, req.query.status);
+    return sendSuccess(res, events);
   } catch (error) {
     console.error("getAllEvents error:", error);
-    res.status(500).json({ error: "Error al obtener los eventos" });
+    return sendError(res, 500, "Error al obtener los eventos");
   }
 };
 
 export const createEvent = async (req, res) => {
   try {
-    const { title, description, startDateTime, endDateTime, location } =
-      req.body;
-    const existingEvent = await Event.findOne({
-      title,
-      startDateTime,
-      endDateTime,
-      location
-    });
+    const result = await createEventForUser(req.body, req.user);
 
-    if (existingEvent) {
-      return res.status(400).json({
-        error: "Ya existe un evento con el mismo título, fecha y lugar.",
-      });
+    if (result.error) {
+      return sendError(res, 400, result.error);
     }
 
-    const newEvent = await Event.create({
-      ...req.body,
-      createdBy: req.user.id,
-    });
-    res.status(201).json(newEvent);
+    return sendSuccess(res, result.event, 201);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("createEvent error:", err);
+    return sendError(res, 500, err.message);
   }
 };
 
 export const getEventById = async (req, res) => {
   try {
-    // Buscamos solo por _id, no usamos populate
-    const event = await Event.findById(req.params.id);
+    const event = await findEventById(req.params.id);
     if (!event) {
-      return res.status(404).json({ message: "Evento no encontrado" });
+      return sendError(res, 404, "Evento no encontrado");
     }
-    return res.status(200).json({ event });
+    return sendSuccess(res, { event });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("getEventById error:", err);
+    return sendError(res, 500, err.message);
   }
 };
 
 export const deleteEvent = async (req, res) => {
   try {
-    const event = await Event.findById(req.params.id);
-    if (!event)
-      return res.status(404).json({ message: "Evento no encontrado" });
-
-    if (
-      req.user.role === "admin" ||
-      (req.user.role === "superuser" &&
-        event.createdBy.toString() === req.user.id.toString())
-    ) {
-      await Event.findByIdAndDelete(req.params.id);
-      return res.json({ message: "Evento eliminado correctamente" });
+    const event = await findEventById(req.params.id);
+    if (!event) {
+      return sendError(res, 404, "Evento no encontrado");
     }
 
-    return res
-      .status(403)
-      .json({ message: "No tienes permisos para eliminar este evento" });
+    if (!ensureEventOwnership(event, req.user)) {
+      return sendError(res, 403, "No tienes permisos para eliminar este evento");
+    }
+
+    await deleteEventById(req.params.id);
+    return sendSuccess(res, { message: "Evento eliminado correctamente" });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("deleteEvent error:", err);
+    return sendError(res, 500, err.message);
   }
 };
 
 export const updateEvent = async (req, res) => {
   try {
-    const event = await Event.findById(req.params.id);
-    if (!event)
-      return res.status(404).json({ message: "Evento no encontrado" });
-
-    // Admin puede todo
-    if (req.user.role === "admin") {
-      const updated = await Event.findByIdAndUpdate(req.params.id, req.body, {
-        new: true,
-      });
-      return res.json(updated);
+    const event = await findEventById(req.params.id);
+    if (!event) {
+      return sendError(res, 404, "Evento no encontrado");
     }
 
-    // Superuser solo puede editar lo que creó
-    if (
-      req.user.role === "superuser" &&
-      event.createdBy.toString() === req.user.id.toString()
-    ) {
-      const updated = await Event.findByIdAndUpdate(req.params.id, req.body, {
-        new: true,
-      });
-      return res.json(updated);
+    if (!ensureEventOwnership(event, req.user)) {
+      return sendError(res, 403, "No tienes permisos para editar este evento");
     }
 
-    return res
-      .status(403)
-      .json({ message: "No tienes permisos para editar este evento" });
+    const updated = await updateEventById(req.params.id, req.body);
+    return sendSuccess(res, updated);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("updateEvent error:", err);
+    return sendError(res, 500, err.message);
   }
 };
 
-// Rutas públicas (sin auth, cualquiera puede usarlas)
-
-
-// Obtener todos los eventos (público, sin auth)
 export const getAllPublicEvents = async (req, res) => {
   try {
-    const allowedStatuses = ["published", "cancelled"];
-    const requestedStatus = String(req.query?.status || "").toLowerCase();
-    const filter = requestedStatus && allowedStatuses.includes(requestedStatus)
-      ? { status: requestedStatus }
-      : { status: { $in: allowedStatuses } };
-    const events = await Event.find(filter).sort({ startDateTime: 1 });
-    res.status(200).json(events);
+    const events = await listPublicEvents(req.query?.status);
+    return sendSuccess(res, events);
   } catch (error) {
-    res.status(500).json({ error: "Error al obtener los eventos publicos" });
+    console.error("getAllPublicEvents error:", error);
+    return sendError(res, 500, "Error al obtener los eventos publicos");
   }
 };
 
-// Obtener un evento por id (público, sin auth)
 export const getPublicEventById = async (req, res) => {
   try {
-    const event = await Event.findById(req.params.id);
+    const event = await findEventById(req.params.id);
     const allowedStatuses = ["published", "cancelled"];
     const currentStatus = String(event?.status || "").toLowerCase();
     if (!event || !allowedStatuses.includes(currentStatus)) {
-      return res.status(404).json({ message: "Evento no encontrado o no disponible" });
+      return sendError(res, 404, "Evento no encontrado o no disponible");
     }
-    res.status(200).json(event);
+    return sendSuccess(res, event);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("getPublicEventById error:", error);
+    return sendError(res, 500, error.message);
   }
 };
 
 export const getEventsCalendarFeed = async (req, res) => {
   try {
-    const events = await Event.find({ status: "published" })
-      .sort({ startDateTime: 1 })
-      .lean();
-
-    const calendar = buildEventsCalendar(events, {
-      baseUrl: process.env.PUBLIC_SITE_URL,
-    });
+    const calendar = await buildCalendarFeed(process.env.PUBLIC_SITE_URL);
 
     res.setHeader("Content-Type", "text/calendar; charset=utf-8");
-    res.setHeader("Content-Disposition", 'attachment; filename="astromania-events.ics"');
+    res.setHeader(
+      "Content-Disposition",
+      'attachment; filename="astromania-events.ics"'
+    );
     res.send(calendar.toString());
   } catch (error) {
     console.error("getEventsCalendarFeed error:", error);
-    res.status(500).json({ error: "No se pudo generar el calendario iCal" });
+    return sendError(res, 500, "No se pudo generar el calendario iCal");
   }
 };
-
 

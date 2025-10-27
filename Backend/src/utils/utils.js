@@ -86,6 +86,17 @@ export const cleanEmptyStrings = (obj = {}) => {
   return obj;
 };
 
+export const sanitizePayload = (payload = {}) => {
+  const clone = { ...payload };
+  cleanEmptyStrings(clone);
+  Object.keys(clone).forEach((key) => {
+    if (clone[key] === undefined) {
+      delete clone[key];
+    }
+  });
+  return clone;
+};
+
 export const uploadToCloudinary = async (file, folder = "service-products") => {
   const MAX_MB = 5;
   if (!file?.mimetype?.startsWith?.("image/")) {
@@ -111,19 +122,39 @@ export const cleanupCloudinary = async (publicIds = []) => {
   );
 };
 
+export const getOwnerId = (doc) => {
+  if (!doc) return null;
+  if (doc.createdBy) return doc.createdBy;
+  if (doc.ownerId) return doc.ownerId;
+  if (doc.userId) return doc.userId;
+  return null;
+};
 
-  export const canEdit = (doc, user) => {
-    const role = String(user?.role || "").toLowerCase();
-    if (role === "admin") return true;
-    const ownerId = getOwnerId(doc);
-    const uid = getUserId(user);
-    return ownerId && uid && String(ownerId) === String(uid);
-  };
+export const getUserId = (user) => {
+  if (!user) return null;
+  return user.id || user._id || user.uid || null;
+};
 
+export const canEdit = (doc, user) => {
+  const role = String(user?.role || "").toLowerCase();
+  if (role === "admin") return true;
+  const ownerId = getOwnerId(doc);
+  const uid = getUserId(user);
+  return ownerId && uid && String(ownerId) === String(uid);
+};
 
 export const sanitizeUser = (u) => {
   if (!u) return null;
   const obj = u.toObject ? u.toObject() : u;
   delete obj.password;
   return obj;
+};
+
+export const sendSuccess = (res, data, status = 200) =>
+  res.status(status).json(data);
+
+export const sendError = (res, status = 500, message = "Server error", detail) => {
+  const payload = { error: message };
+  if (detail !== undefined) payload.detail = detail;
+  return res.status(status).json(payload);
 };

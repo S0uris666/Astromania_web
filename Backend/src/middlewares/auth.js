@@ -1,4 +1,3 @@
-//middleware entre la peticion  y la ruta
 import jwt from "jsonwebtoken";
 //middleware de autenticacion
 export default function auth(req, res, next) { 

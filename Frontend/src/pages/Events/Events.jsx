@@ -243,17 +243,19 @@ export function EventsCalendarPage() {
                   </p>
                 </div>
                 <div className="flex flex-col gap-3 sm:items-end sm:min-w-[240px]">
-                  <a
-                    href={webcalFeedUrl || icsFeedUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn-outline btn-primary btn-sm gap-2 w-full sm:w-auto"
-                    title="Abrir o copiar el feed iCal de Astromania"
-                    aria-label="Abrir o copiar el feed iCal de Astromania"
-                  >
-                    <CalendarDays className="size-4" aria-hidden="true" />
-                    Sincroniza con tu Calendario
-                  </a>
+                  {!isMobile && (
+                    <a
+                      href={webcalFeedUrl || icsFeedUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-outline btn-primary btn-sm gap-2 w-full sm:w-auto"
+                      title="Abrir o copiar el feed iCal de Astromania"
+                      aria-label="Abrir o copiar el feed iCal de Astromania"
+                    >
+                      <CalendarDays className="size-4" aria-hidden="true" />
+                      Sincroniza con tu Calendario
+                    </a>
+                  )}
 
                   <div className="flex items-center justify-between gap-3 w-full sm:w-auto rounded-lg border border-base-200 bg-base-100/70 px-3 py-2 shadow-sm">
                     <span className="text-sm font-medium leading-tight">Mostrar fin de semana</span>
@@ -492,4 +494,5 @@ export function EventsCalendarPage() {
 }
 
 export default EventsCalendarPage;
+
 
