@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, useContext, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, X, ChevronDown, ShoppingCart, Trash2, Search } from "lucide-react";
+import { Menu, X, ChevronDown, ShoppingCart, Trash2, Search, User, UserCheck } from "lucide-react";
 import { UserContext } from "../../context/user/UserContext";
 import logoImg from "../../assets/Images/logo.png";
 
@@ -252,9 +252,15 @@ export default function Header() {
             </div>
           </form>
 
-          <Link to={accountPath} className="btn btn-secondary btn-sm text-white whitespace-nowrap">
-            {authState ? "Mi cuenta" : "Ingresa"}
-          </Link>
+<Link
+  to={accountPath}
+  className="btn btn-ghost btn-sm p-2 rounded-full"
+  aria-label={authState ? "Mi cuenta" : "Ingresa"}
+  title={authState ? "Mi cuenta" : "Ingresa"}
+>
+  {authState ? <UserCheck className="w-5 h-5" /> : <User className="w-5 h-5" />}
+  <span className="sr-only">{authState ? "Mi cuenta" : "Ingresa"}</span>
+</Link>
 
           <div className="relative" ref={cartRefDesktop}>
             <button
