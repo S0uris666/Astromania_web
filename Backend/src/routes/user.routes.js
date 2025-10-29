@@ -1,25 +1,39 @@
-import {Router} from "express";
-import { createUser, loginUser, logoutUser,updateUser, verifyUser } from "../controllers/user.controller.js";
+import { Router } from "express";
+import multer from "multer";
+import {
+  createUser,
+  loginUser,
+  logoutUser,
+  updateUser,
+  verifyUser,
+  adminGetAllUsers,
+  adminPromoteUserToSuperuser,
+  getPublishedUsers,
+  getUserBySlug,
+} from "../controllers/user.controller.js";
 import auth from "../middlewares/auth.js";
-import {validateSchema} from '../middlewares/validator.js'
+import { validateSchema } from "../middlewares/validator.js";
 import { registerSchema, loginSchema } from "../schemas/auth.schema.js";
-import { adminGetAllUsers } from "../controllers/user.controller.js";
 import { authRol } from "../middlewares/authRol.js";
-import {adminPromoteUserToSuperuser} from '../controllers/user.controller.js'
 
 const userRouter = Router();
+const upload = multer({ storage: multer.memoryStorage() });
 
+userRouter.post("/register", validateSchema(registerSchema), createUser);
+userRouter.post("/login", validateSchema(loginSchema), loginUser);
+userRouter.post("/logout", logoutUser);
+userRouter.put("/update", auth, upload.array("images", 6), updateUser);
+userRouter.get("/verify-user", auth, verifyUser);
 
-userRouter.post("/register",validateSchema(registerSchema), createUser); //http://localhost:3000/api/register
-userRouter.post("/login",validateSchema(loginSchema), loginUser); //http://localhost:3000/api/login
-userRouter.post("/logout", logoutUser); //http://localhost:3000/api/logout
-userRouter.put('/update',auth, updateUser)//http://localhost:3000/api/update
-userRouter.get('/verify-user',auth, verifyUser)//http://localhost:3000/api/verify-user
+userRouter.get("/users/published", getPublishedUsers);
+userRouter.get("/users/:slug", getUserBySlug);
 
-
-
-
-userRouter.get("/admin/users", auth, authRol("admin"), adminGetAllUsers); //http://localhost:3000/api/admin/users
-userRouter.post("/admin/user/promote/:id", auth, authRol("admin"), adminPromoteUserToSuperuser); //http://localhost:3000/api/admin/user/promote/:id
+userRouter.get("/admin/users", auth, authRol("admin"), adminGetAllUsers);
+userRouter.post(
+  "/admin/user/promote/:id",
+  auth,
+  authRol("admin"),
+  adminPromoteUserToSuperuser
+);
 
 export default userRouter;

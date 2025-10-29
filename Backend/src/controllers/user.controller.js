@@ -4,20 +4,12 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 
-import slugify from "slugify";
+import { sendSuccess, sendError } from "../utils/utils.js";
 import {
-  cleanEmptyStrings,
-  cleanupCloudinary,
-  normText,
-  parseJSON,
-  sanitizeLinks,
-  sanitizeLocations,
-  sanitizeTags,
-  toBool,
-  toNum,
-  uploadToCloudinary,
-  canEdit
-} from "../utils/utils.js";
+  listPublicUsers,
+  findUserBySlug,
+  updateProfile,
+} from "../services/user.service.js";
 
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
@@ -74,10 +66,10 @@ export const createUser = async (req, res) => {
 
 export const getAllUsers = async (_req, res) => {
   try {
-    const data = await ServiceProductItem.find({});
+    const data = await User.find({});
     return res.status(200).json(data);
   } catch (err) {
-    console.error("getAllServiceProducts error:", err);
+    console.error("getAllUsers error:", err);
     return res.status(500).json({ message: "Server error" });
   }
 };
@@ -131,35 +123,29 @@ export const logoutUser = (req, res) => {
 
 export const updateUser = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const result = await updateProfile({
+      userId: req.user.id,
+      body: req.body,
+      files: req.files,
+      requester: req.user,
+    });
 
-    // Construir objeto con los campos a actualizar
-    const updates = {};
-    if (username) updates.username = username;
-    if (email) updates.email = email;
-    if (password) {
-      const salt = await bcrypt.genSalt(10);
-      updates.password = await bcrypt.hash(password, salt);
+    if (result?.error) {
+      return sendError(
+        res,
+        result.status || 400,
+        result.error,
+        result.detail
+      );
     }
 
-    // Actualizar el usuario logueado
-    const updatedUser = await User.findByIdAndUpdate(
-      req.user.id,
-      { $set: updates },
-      { new: true, select: "-password" } // excluir password en la respuesta
-    );
-
-    if (!updatedUser) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    res.json({
+    return sendSuccess(res, {
       message: "User updated successfully",
-      user: updatedUser,
+      user: result.user,
     });
   } catch (error) {
-    console.error("Update user error:", error);
-    res.status(500).json({ message: "Server error" });
+    console.error("updateUser error:", error);
+    return sendError(res, 500, "Server error");
   }
 };
 
@@ -174,6 +160,29 @@ export const verifyUser = async (req, res) => {
   }
 }
 
+export const getPublishedUsers = async (req, res) => {
+  try {
+    const users = await listPublicUsers({ role: req.query.role });
+    return sendSuccess(res, users);
+  } catch (error) {
+    console.error("getPublishedUsers error:", error);
+    return sendError(res, 500, "Error al obtener los usuarios publicados");
+  }
+};
+
+export const getUserBySlug = async (req, res) => {
+  try {
+    const user = await findUserBySlug(req.params.slug);
+    if (!user) {
+      return sendError(res, 404, "Perfil no encontrado");
+    }
+    return sendSuccess(res, user);
+  } catch (error) {
+    console.error("getUserBySlug error:", error);
+    return sendError(res, 500, "Error al obtener el perfil");
+  }
+};
+
 
 export const adminGetAllUsers = async (req, res) => {
   try {
@@ -181,6 +190,7 @@ export const adminGetAllUsers = async (req, res) => {
     if (req.user?.role !== "admin") {
       return res.status(403).json({ error: "Acceso denegado" });
     }
+
 
     const page = Math.max(parseInt(req.query.page) || 1, 1);
     const limit = Math.min(Math.max(parseInt(req.query.limit) || 20, 1), 100);

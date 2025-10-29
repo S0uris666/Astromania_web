@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import slugify from "slugify";
 
 const PerfilImageSchema = new mongoose.Schema(
   {
@@ -26,9 +27,15 @@ const userSchema = new mongoose.Schema(
       unique: true,
       maxlength: [50, "El nombre no puede exceder 50 caracteres"],
     },
-    profesion: {type: String},
-    especializacion:{},
-    
+    slug: {
+      type: String,
+      lowercase: true,
+      trim: true,
+      unique: true,
+    },
+    profesion: { type: String, trim: true, default: "" },
+    especializacion: { type: String, trim: true, default: "" },
+
     email: {
       type: String,
       required: [true, "El email es requerido"],
@@ -58,13 +65,16 @@ const userSchema = new mongoose.Schema(
       default: true,
     },
     images: [PerfilImageSchema],
-    links:[SocialLinkSchema],
-      description: {
+    links: [SocialLinkSchema],
+    description: {
       type: String,
-      required: true,
       trim: true,
-      minlength: 10,
+      default: "",
       maxlength: 1000,
+      validate: {
+        validator: (value) => !value || value.length >= 10,
+        message: "La descripcion debe tener al menos 10 caracteres",
+      },
     },
      status: {
       type: String,
@@ -76,5 +86,16 @@ const userSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+userSchema.pre("save", function (next) {
+  if (this.isModified("username") || !this.slug) {
+    const base = this.username || this.email || "";
+    this.slug = slugify(base, { lower: true, strict: true });
+  }
+  next();
+});
+
+userSchema.index({ slug: 1 }, { unique: true, sparse: true });
+userSchema.index({ status: 1, role: 1 });
 
 export default mongoose.model("User", userSchema);
