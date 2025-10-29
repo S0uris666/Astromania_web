@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 const app = express();
-
+app.set("trust proxy", 1);
 
 
 //rutas
@@ -21,7 +21,7 @@ app.use(cors({
 }));
 app.use(express.json({ limit: "10mb" }));
 app.use(cookieParser());
-app.set("trust proxy", 1);
+
 
 // Rutas
 app.get("/", (req, res) => {
