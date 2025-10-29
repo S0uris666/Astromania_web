@@ -184,7 +184,7 @@ Auth: `/login`, `/registro`
 
 Privadas:
 - Usuario: `/perfil`
-- Superuser: `/perfilsuperuser`, edición/gestión de eventos
+- Superuser: `/perfil_divulgador_`, edición/gestión de eventos
 - Admin: `/admin`, `/admin/usuarios`, `/admin/eventos/*`, `/admin/productos/*`
 
 El cliente HTTP (`Frontend/src/api/client.js`) usa `VITE_BACKEND_URL` y `withCredentials` para cookies de sesión.

@@ -11,7 +11,7 @@ export function AdminoSuperuserRoute({ component: Component }) {
       await verifyUser();
       setLoading(false);
     })();
-  }, []); // no dependas de authState
+  }, []); 
 
   if (loading) return null;
 

@@ -6,7 +6,20 @@ import client from "./client.js";
 export const registerRequest = (user) => axios.post(`${API}/register`,user)
 export const loginRequest = (user) => client.post("/login",user,{})
 export const verifyRequest = () => client.get("/verify-user",{})
-export const updateRequest = (user) => client.put("/update",user,{})
+export const updateRequest = (payload, config = {}) => {
+  const isFormData = payload instanceof FormData;
+  const finalConfig = isFormData
+    ? {
+        ...config,
+        headers: {
+          ...(config.headers || {}),
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    : config;
+
+  return client.put("/update", payload, finalConfig);
+};
 export const logoutRequest = () => client.post("/logout",{})
 
 //Productos y servicios

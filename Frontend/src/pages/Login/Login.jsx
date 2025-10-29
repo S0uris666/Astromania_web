@@ -33,7 +33,7 @@ export function Login() {
       } else if (role === "admin") {
         navigate("/admin", { replace: true });
       } else if (role === "superuser") {
-        navigate("/perfilsuperuser", { replace: true });
+        navigate("/perfil_divulgador", { replace: true });
       } else {
         navigate("/perfil", { replace: true });
       }

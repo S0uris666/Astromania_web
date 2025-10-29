@@ -19,7 +19,7 @@ export default function AuthRoute({ component: Component }) {
     return (
       <Navigate
         replace
-        to={role === "admin" ? "/admin" : role === "superuser" ? "/perfilsuperuser" : "/perfil"}
+        to={role === "admin" ? "/admin" : role === "superuser" ? "/perfil_divulgador" : "/perfil"}
       />
     );
   }

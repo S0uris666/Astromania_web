@@ -1,4 +1,3 @@
-// src/pages/Admin/AdminUsers.jsx
 import { useEffect, useMemo, useState } from "react";
 import { apiGetAllUsersAdmin, apiPromoteToSuperuser } from "../../api/auth";
 import { useNavigate } from "react-router-dom";
@@ -23,8 +22,7 @@ export function AdminUsers() {
       setLoading(true);
       setError(null);
       try {
-        // tu API devuelve axios response -> data es la carga útil;
-        // si viene como { data, total, pages }, ajusta abajo.
+
         const res = await apiGetAllUsersAdmin();
         const payload = res?.data?.data || res?.data || []; // intenta ambos formatos
         if (!alive) return;

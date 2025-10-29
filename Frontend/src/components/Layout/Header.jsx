@@ -64,7 +64,7 @@ export default function Header() {
     const u = currentUser?.user ?? currentUser;
     const role = String(u?.role || "").toLowerCase().trim();
     if (role === "admin") return "/admin";
-    if (role === "superuser") return "/perfilsuperuser";
+    if (role === "superuser") return "/perfil_divulgador";
     return "/perfil";
   }, [authState, currentUser]);
 

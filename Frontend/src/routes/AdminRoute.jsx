@@ -20,7 +20,7 @@ export function AdminRoute({ component: Component }) {
   const role = String(currentUser?.role || "").toLowerCase().trim();
   if (role !== "admin") {
     // si es superuser, lo sacamos a su panel; si es user, a /perfil
-    return <Navigate replace to={role === "superuser" ? "/perfilsuperuser" : "/perfil"} />;
+    return <Navigate replace to={role === "superuser" ? "/perfil_divulgador" : "/perfil"} />;
   }
 
   return Component ? <Component /> : null;

@@ -16,7 +16,7 @@ import UserState from "./context/user/UserState.jsx";
 import { EventsCalendarPage } from "./pages/Events/Events.jsx";
 import EventState from "./context/events/eventsState.jsx";
 import PaymentProvider from "./context/payment/paymentState.jsx";
-import { Perfil } from "./pages/Perfil/Perfil.jsx";
+import UserProfile from "./pages/Profile/UserProfile.jsx";
 import PrivateRoute from "./routes/Private.jsx";
 import AuthRoute from "./routes/Auth.jsx";
 import {AdminRoute} from "./routes/AdminRoute.jsx";
@@ -24,7 +24,8 @@ import  PerfilAdmin  from "./pages/Admin/PerfilAdmin.jsx";
 import { CrearProductos } from "./pages/ServiceProduct/Crearproductos.jsx";
 import { CrearEventos } from "./pages/Events/CrearEventos.jsx";
 import {SuperUserRoute} from "./routes/SuperUserRoute.jsx";
-import { SuperUserPerfil } from "./pages/Perfil/SuperUserPerfil.jsx";
+import SuperUserProfile from "./pages/Profile/SuperUserProfile.jsx";
+import ProfileEditor from "./pages/Profile/ProfileEditor.jsx";
 import { AdminUsers } from "./pages/Admin/AdminUsers.jsx";
 import {AdminoSuperuserRoute} from "./routes/AdminoSuperuserRoute.jsx";
 import { EditarEventos } from "./pages/Events/EditarEventos.jsx";
@@ -83,9 +84,10 @@ export default function AppRouter() {
                   
                   <Route
                     path="perfil"
-                    element={<PrivateRoute component={Perfil} />}
+                    element={<PrivateRoute component={UserProfile} />}
                   />
-                  <Route path="perfilsuperuser" element={<SuperUserRoute component={SuperUserPerfil} />} />
+                  <Route path="/perfil_divulgador" element={<SuperUserRoute component={SuperUserProfile} />} />
+                  <Route path="/perfil_divulgador/editar" element={<SuperUserRoute component={ProfileEditor} />} />
 
                   <Route path="/eventos" element={<EventsCalendarPage />} />
 

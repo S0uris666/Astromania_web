@@ -110,9 +110,39 @@ const UserState = (props) => {
   };
 
   const updateUser = async (form) => {
-    await updateRequest(form, {
-      withCredentials: true,
-    });
+    try {
+      const response = await updateRequest(form);
+      const updated =
+        response?.data?.user ||
+        response?.data ||
+        response?.user ||
+        null;
+
+      if (updated) {
+        dispatch({
+          type: "GET_USER_DATA",
+          payload: updated,
+        });
+      }
+
+      return response?.data || updated;
+    } catch (error) {
+      const msg = getHttpErrorMessage(
+        error,
+        "No se pudo actualizar el perfil",
+        {
+          fieldLabels: {
+            profesion: "Profesion",
+            especializacion: "Especializacion",
+            description: "Descripcion",
+            links: "Enlaces",
+            status: "Estado del perfil",
+          },
+          maxIssues: 3,
+        }
+      );
+      throw new Error(msg);
+    }
   };
 
   const logoutUser = async (navigate) => {
@@ -205,3 +235,4 @@ const promoteUserToSuperuser = async (id) => {
 };
 
 export default UserState;
+
