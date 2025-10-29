@@ -235,4 +235,3 @@ const promoteUserToSuperuser = async (id) => {
 };
 
 export default UserState;
-

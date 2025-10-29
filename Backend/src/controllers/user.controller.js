@@ -1,4 +1,3 @@
-
 import User from "../models/User.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -22,31 +21,35 @@ export const createUser = async (req, res) => {
 
     // Validaciones simples
     if (!username.trim() || !email.trim() || !password) {
-      return res.status(400).json({ error: "Todos los campos son obligatorios" });
+      return res
+        .status(400)
+        .json({ error: "Todos los campos son obligatorios" });
     }
     if (password.length < 6) {
-      return res.status(422).json({ error: "La contraseña debe tener al menos 6 caracteres" });
+      return res
+        .status(422)
+        .json({ error: "La contraseña debe tener al menos 6 caracteres" });
     }
 
     // Usuario existente
     const foundUser = await User.findOne({ email: email.toLowerCase().trim() });
     if (foundUser) {
-      return res.status(409).json({ error: "El usuario ya existe con ese correo" });
+      return res
+        .status(409)
+        .json({ error: "El usuario ya existe con ese correo" });
     }
 
     // Hash
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-   
     const newUser = await User.create({
       username: username.trim(),
       email: email.toLowerCase().trim(),
-      role: "user", 
+      role: "user",
       password: hashedPassword,
     });
 
-    
     const safe = newUser.toObject();
     delete safe.password;
     delete safe.__v;
@@ -55,7 +58,6 @@ export const createUser = async (req, res) => {
   } catch (err) {
     console.error("Error creating user:", err);
 
-    
     if (err?.code === 11000 && err?.keyPattern?.email) {
       return res.status(409).json({ error: "El correo ya está registrado" });
     }
@@ -73,9 +75,6 @@ export const getAllUsers = async (_req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
-
-
-
 
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
@@ -95,21 +94,20 @@ export const loginUser = async (req, res) => {
 
     const payload = {
       id: foundUser._id,
-       role: foundUser.role
+      role: foundUser.role,
     };
     //sign token
     jwt.sign(payload, process.env.SECRET, { expiresIn: 3600 }, (err, token) => {
       if (err) throw err;
-      res.cookie("token",token, {
-  httpOnly: true,
-  secure: isProd,           // en Vercel = true (HTTPS). Si no pones secure en prod, el browser NO la guarda
-  sameSite: isProd ? "none" : "lax", // "none" para enviar en cross-site; con rewrites puedes dejar "lax"
-  path: "/",
-  maxAge: 7 * 24 * 60 * 60 * 1000
-})
-      res.json({ message: "Login exitoso", token  });
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: isProd, // en Vercel = true (HTTPS). Si no pones secure en prod, el browser NO la guarda
+        sameSite: isProd ? "none" : "lax", // "none" para enviar en cross-site; con rewrites puedes dejar "lax"
+        path: "/",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+      res.json({ message: "Login exitoso", token });
     });
-
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }
@@ -118,8 +116,7 @@ export const loginUser = async (req, res) => {
 export const logoutUser = (req, res) => {
   res.cookie("token", "", { expires: new Date(0) });
   res.json({ message: "Logout successful" });
-
-}
+};
 
 export const updateUser = async (req, res) => {
   try {
@@ -131,12 +128,7 @@ export const updateUser = async (req, res) => {
     });
 
     if (result?.error) {
-      return sendError(
-        res,
-        result.status || 400,
-        result.error,
-        result.detail
-      );
+      return sendError(res, result.status || 400, result.error, result.detail);
     }
 
     return sendSuccess(res, {
@@ -150,15 +142,13 @@ export const updateUser = async (req, res) => {
 };
 
 export const verifyUser = async (req, res) => {
-    
   try {
     const user = await User.findById(req.user.id).select("-password");
     res.json({ user: user });
   } catch (error) {
     res.status(500).json({ message: "Server error" });
-    
   }
-}
+};
 
 export const getPublishedUsers = async (req, res) => {
   try {
@@ -183,14 +173,12 @@ export const getUserBySlug = async (req, res) => {
   }
 };
 
-
 export const adminGetAllUsers = async (req, res) => {
   try {
     // Seguridad adicional por si la ruta no tiene el middleware
     if (req.user?.role !== "admin") {
       return res.status(403).json({ error: "Acceso denegado" });
     }
-
 
     const page = Math.max(parseInt(req.query.page) || 1, 1);
     const limit = Math.min(Math.max(parseInt(req.query.limit) || 20, 1), 100);
@@ -228,8 +216,6 @@ export const adminGetAllUsers = async (req, res) => {
   }
 };
 
-
-
 export const adminPromoteUserToSuperuser = async (req, res) => {
   try {
     if (req.user?.role !== "admin") {
@@ -262,8 +248,7 @@ export const adminPromoteUserToSuperuser = async (req, res) => {
     // Regla de negocio: solo de 'user' => 'superuser'
     if ((user.role || "").toLowerCase() !== "user") {
       return res.status(409).json({
-        error:
-          "Solo puedes promover cuentas con rol 'user' al rol 'superuser'",
+        error: "Solo puedes promover cuentas con rol 'user' al rol 'superuser'",
       });
     }
 
@@ -283,6 +268,3 @@ export const adminPromoteUserToSuperuser = async (req, res) => {
     return res.status(500).json({ error: "Error al actualizar el rol" });
   }
 };
-
-
-
