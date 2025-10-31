@@ -3,6 +3,7 @@ import { UserContext } from "../../context/user/UserContext";
 import ProfileForm from "./components/ProfileForm";
 import SocialLinksEditor from "./components/SocialLinksEditor";
 import ProfileImageUploader from "./components/ProfileImageUploader";
+import { normalizeText, parseSpecializations, getLinkLabel } from "./profileUtils.js";
 
 const EMPTY_PROFILE = {
   username: "",
@@ -12,74 +13,6 @@ const EMPTY_PROFILE = {
   email: "",
   status: "draft",
   city: "",
-};
-
-const normalizeText = (value) => {
-  if (value === null || value === undefined) {
-    return "";
-  }
-  return String(value).trim();
-};
-
-const parseSpecializations = (value) => {
-  const normalize = (item) => normalizeText(item);
-
-  if (!value) {
-    return [];
-  }
-
-  if (Array.isArray(value)) {
-    const items = value.map(normalize).filter(Boolean);
-    return Array.from(new Set(items));
-  }
-
-  if (typeof value === "string") {
-    const raw = value.trim();
-    if (!raw) return [];
-
-    try {
-      const parsed = JSON.parse(raw);
-      return parseSpecializations(parsed);
-    } catch {
-      const segments = raw
-        .split(/[,;|]/g)
-        .map(normalize)
-        .filter(Boolean);
-
-      if (segments.length) {
-        return Array.from(new Set(segments));
-      }
-
-      const single = normalize(raw);
-      return single ? [single] : [];
-    }
-  }
-
-  if (typeof value === "object") {
-    return parseSpecializations(Object.values(value));
-  }
-
-  return [];
-};
-
-const getLinkLabel = (label, url) => {
-  const normalizedLabel = normalizeText(label);
-  if (normalizedLabel) return normalizedLabel;
-
-  const candidate = normalizeText(url);
-  if (!candidate) return "";
-
-  const prefixed =
-    candidate.startsWith("http://") || candidate.startsWith("https://")
-      ? candidate
-      : `https://${candidate}`;
-
-  try {
-    const { hostname } = new URL(prefixed);
-    return hostname.replace(/^www\./, "");
-  } catch {
-    return candidate;
-  }
 };
 
 const ProfilePreviewCard = ({
