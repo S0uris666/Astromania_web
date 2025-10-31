@@ -17,6 +17,7 @@ const COMMUNITY_LINKS = [
   
   { label: "Astromania responde", to: "/comunidad/astromania-responde" },
   { label: "Galeria", to: "/comunidad/galeria" },
+  { label: "Red divulgadores", to: "/comunidad/red_divulgadores" }
 ];
 
 /* ---------- Logo (evita estiramiento) ---------- */
@@ -217,6 +218,7 @@ export default function Header() {
               <li><Link to="/comunidad/astromania-responde">Astromanía responde</Link></li>
               
               <li><Link to="/comunidad/galeria">Galería</Link></li>
+              <li><Link to="/comunidad/red_divulgadores">Red divulgadores</Link></li>
             </Drop>
 
             <NavLink to="/servicios-productos-list">Servicios y Productos</NavLink>

@@ -50,3 +50,12 @@ export const createServiceProductRequest = (formData) =>
 
 export const apiGetAllUsersAdmin = (params={}) => client.get("/admin/users", { params });
 export const apiPromoteToSuperuser = (id) => client.post(`/admin/user/promote/${id}`,{ role: "superuser" });
+
+export const getPublishedUsers = (params = {}, config = {}) =>
+  client.get("/users/published", {
+    ...(config || {}),
+    params: {
+      ...(config?.params || {}),
+      ...params,
+    },
+  });

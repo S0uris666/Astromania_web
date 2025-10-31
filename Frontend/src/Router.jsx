@@ -25,6 +25,7 @@ import { CrearProductos } from "./pages/ServiceProduct/Crearproductos.jsx";
 import { CrearEventos } from "./pages/Events/CrearEventos.jsx";
 import {SuperUserRoute} from "./routes/SuperUserRoute.jsx";
 import SuperUserProfile from "./pages/Profile/SuperUserProfile.jsx";
+import PublicProfiles from "./pages/Profile/PublicProfiles.jsx";
 import ProfileEditor from "./pages/Profile/ProfileEditor.jsx";
 import { AdminUsers } from "./pages/Admin/AdminUsers.jsx";
 import {AdminoSuperuserRoute} from "./routes/AdminoSuperuserRoute.jsx";
@@ -73,6 +74,7 @@ export default function AppRouter() {
 
 
                   <Route path="/comunidad" element={<Comunidad />} />
+                  <Route path="/comunidad/red_divulgadores" element={<PublicProfiles />} />
                   <Route path="/contacto" element={<Contacto />} />
                   
                   {/* Rutas de Autenticación y Perfil */}
