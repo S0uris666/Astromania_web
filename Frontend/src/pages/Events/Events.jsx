@@ -237,7 +237,7 @@ export function EventsCalendarPage() {
             <div className="card-body">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between mb-4">
                 <div className="space-y-1">
-                  <h1 className="card-title text-2xl">Calendario de eventos astronomicos</h1>
+                  <h1 className="card-title text-2xl">Eventos de la red nacional de divulgación astronómica</h1>
                   <p className="text-sm text-base-content/70">
                     Si sincronizas con el calendario muestran solo eventos publicados para que puedas seguirlos en tu agenda.
                   </p>
