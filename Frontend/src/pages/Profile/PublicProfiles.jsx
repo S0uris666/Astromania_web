@@ -129,9 +129,9 @@ export default function PublicProfiles() {
               <Sparkles className="size-3.5 opacity-80" /> Comunidad Astromanía
             </span>
             <div className="mt-5 space-y-3">
-              <h1 className="text-3xl sm:text-4xl font-black leading-tight">Conecta con divulgadores</h1>
+              <h1 className="text-3xl sm:text-4xl font-black leading-tight">Red nacional de divulgación astronómica</h1>
               <p className="max-w-2xl text-sm sm:text-base text-base-content/70">
-                Explora la red nacional de divulgación astronómica y encuentra aliados para nuevos proyectos.
+               Descubre a quienes ya comparten su pasión por la astronomía. Explora perfiles, encuentra aliados y conecta con divulgadores listos para colaborar.
               </p>
               <Pill className="gap-2"><Users className="size-3.5 opacity-70" />{totalPublished} perfiles</Pill>
             </div>
