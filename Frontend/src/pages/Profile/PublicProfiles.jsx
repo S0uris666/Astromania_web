@@ -136,7 +136,7 @@ export function PublicProfiles() {
               Comunidad Astromanía
             </span>
             <div className="mt-4 space-y-3">
-              <h1 className="text-3xl font-bold leading-tight sm:text-4xl">Red de divulgadores</h1>
+              <h1 className="text-3xl font-bold leading-tight sm:text-4xl">Red nacional de divulgación astronómica</h1>
               <p className="max-w-2xl text-sm sm:text-base text-base-content/70">
                 Descubre a quienes ya comparten su pasión por la astronomía. Explora perfiles,
                 encuentra aliados y conecta con divulgadores listos para colaborar.
