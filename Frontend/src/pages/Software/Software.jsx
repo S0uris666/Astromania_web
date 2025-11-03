@@ -182,13 +182,32 @@ function SoftwareCard({ item }) {
     [platforms]
   );
 
-  const normalizedTags = useMemo(
-    () =>
-      Array.isArray(tags)
-        ? tags.filter(Boolean).map((value) => String(value))
-        : [],
-    [tags]
-  );
+  const normalizedTags = useMemo(() => {
+    if (!Array.isArray(tags)) {
+      return [];
+    }
+
+    const seen = new Set();
+
+    return tags
+      .map((value) => (value ? String(value).trim() : ""))
+      .filter(Boolean)
+      .reduce((acc, value) => {
+        const slug = value
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/\s+/g, "-");
+
+        if (seen.has(slug)) {
+          return acc;
+        }
+
+        seen.add(slug);
+        acc.push({ slug, label: value });
+        return acc;
+      }, []);
+  }, [tags]);
 
   return (
     <article className="card h-full flex flex-col bg-base-100 border border-base-300/70 hover:border-base-300 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden">
@@ -273,17 +292,14 @@ function SoftwareCard({ item }) {
 
         {normalizedTags.length > 0 && (
           <div className="mt-3 flex flex-wrap gap-2 text-xs text-base-content/70">
-            {normalizedTags.map((tag) => {
-              const slug = String(tag).replace(/\s+/g, "-");
-              return (
-                <span
-                  key={`${item?.id || "tag"}-${slug}`}
-                  className="badge badge-ghost badge-sm lowercase"
-                >
-                  {"#" + slug}
-                </span>
-              );
-            })}
+            {normalizedTags.map(({ slug, label }) => (
+              <span
+                key={`${item?.id || "tag"}-${slug}`}
+                className="badge badge-ghost badge-sm lowercase"
+              >
+                {"#" + slug}
+              </span>
+            ))}
           </div>
         )}
 
