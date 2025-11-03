@@ -16,13 +16,16 @@ const isSuperUser = (user) =>
 const buildStatusFilter = (status, allowed) =>
   allowed.includes(status) ? { status } : {};
 
+const CREATED_BY_PUBLIC_FIELDS = "username slug profesion city country especializacion";
+const CREATED_BY_PRIVATE_FIELDS = `${CREATED_BY_PUBLIC_FIELDS} email role`;
+
 export const listEventsForUser = async (user, status) => {
   const baseFilter = isAdmin(user) ? {} : { createdBy: user.id };
   const normalizedStatus = String(status || "").toLowerCase();
   const statusFilter = buildStatusFilter(normalizedStatus, USER_STATUS_FILTER);
   return Event.find({ ...baseFilter, ...statusFilter })
     .sort({ startDateTime: 1 })
-    .populate({ path: "createdBy", select: "username email role" });
+    .populate({ path: "createdBy", select: CREATED_BY_PRIVATE_FIELDS });
 };
 
 export const listPublicEvents = async (status) => {
@@ -33,7 +36,9 @@ export const listPublicEvents = async (status) => {
       ? statusFilter
       : { status: { $in: PUBLIC_STATUSES } };
 
-  return Event.find(filter).sort({ startDateTime: 1 });
+  return Event.find(filter)
+    .sort({ startDateTime: 1 })
+    .populate({ path: "createdBy", select: CREATED_BY_PUBLIC_FIELDS });
 };
 
 export const findEventById = (id) => Event.findById(id);
@@ -90,4 +95,3 @@ export const buildCalendarFeed = async (baseUrl) => {
     baseUrl,
   });
 };
-

@@ -1,4 +1,5 @@
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import EventContext from "../../context/events/eventsContext";
 
 import FullCalendar from "@fullcalendar/react";
@@ -9,6 +10,7 @@ import listPlugin from "@fullcalendar/list";
 import esLocale from "@fullcalendar/core/locales/es";
 import { ExternalLink, CalendarDays, Clock, MapPin, UserRound, Ticket, Link as LinkIcon, Tag } from "lucide-react";
 import { DateTime } from "luxon";
+import { getPublishedUsers } from "../../api/auth.js";
 
 const TZ = "America/Santiago";
 const CLP = new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP" });
@@ -78,12 +80,53 @@ export function EventsCalendarPage() {
   const [weekendsVisible, setWeekendsVisible] = useState(true);
   const [selectedDateISO, setSelectedDateISO] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [organizerDirectory, setOrganizerDirectory] = useState({
+    bySlug: {},
+    byName: {},
+    byEmail: {},
+  });
 
   const isMobile = useIsMobile();
 
   useEffect(() => {
     getAllEvents();
   }, [getAllEvents]);
+
+  useEffect(() => {
+    let active = true;
+    const fetchOrganizers = async () => {
+      try {
+        const res = await getPublishedUsers();
+        const data = res?.data?.data || res?.data || res || [];
+        const bySlug = {};
+        const byName = {};
+        const byEmail = {};
+        (Array.isArray(data) ? data : []).forEach((profile) => {
+          const slug = profile?.slug ? String(profile.slug).trim().toLowerCase() : "";
+          const username = profile?.username ? String(profile.username).trim().toLowerCase() : "";
+          const email = profile?.email ? String(profile.email).trim().toLowerCase() : "";
+          const entry = {
+            slug: profile?.slug || "",
+            name: profile?.username || profile?.slug || "",
+            email: profile?.email || "",
+          };
+          if (slug) bySlug[slug] = entry;
+          if (username) byName[username] = entry;
+          if (email) byEmail[email] = entry;
+        });
+        if (active) {
+          setOrganizerDirectory({ bySlug, byName, byEmail });
+        }
+      } catch (error) {
+        console.error("[Events] getPublishedUsers error:", error?.response?.data || error);
+      }
+    };
+
+    fetchOrganizers();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const windowOrigin = typeof window !== "undefined" ? window.location.origin : "";
 
@@ -203,6 +246,39 @@ export function EventsCalendarPage() {
     setSelectedDateISO(DateTime.fromISO(full.startDateTime).toISODate());
     setSelectedEvent(full);
   };
+
+  const resolveOrganizerProfile = useCallback(
+    (event) => {
+      if (!event) return null;
+      const created = event.createdBy;
+      if (created?.slug) {
+        return {
+          slug: created.slug,
+          name: created.username || created.slug,
+        };
+      }
+      const normalize = (value) => (value ? String(value).trim().toLowerCase() : "");
+      const organizerText = normalize(event.organizer);
+      if (!organizerText) return null;
+
+      if (organizerDirectory.bySlug[organizerText]) {
+        return organizerDirectory.bySlug[organizerText];
+      }
+      if (organizerDirectory.byName[organizerText]) {
+        return organizerDirectory.byName[organizerText];
+      }
+      if (organizerDirectory.byEmail[organizerText]) {
+        return organizerDirectory.byEmail[organizerText];
+      }
+      return null;
+    },
+    [organizerDirectory]
+  );
+
+  const selectedOrganizerProfile = useMemo(
+    () => resolveOrganizerProfile(selectedEvent),
+    [resolveOrganizerProfile, selectedEvent]
+  );
 
   /** ===== Toolbar e InitialView responsivos ===== */
   const headerToolbar = useMemo(
@@ -397,7 +473,19 @@ export function EventsCalendarPage() {
                     <div className="flex items-start gap-2">
                       <UserRound className="size-4 mt-0.5 opacity-70" />
                       <div>
-                        <span className="font-semibold">Organiza:</span> {selectedEvent.organizer}
+                        <span className="font-semibold">Organiza:</span>{" "}
+                        {selectedEvent.organizer}
+                        {selectedOrganizerProfile?.slug && (
+                          <div className="mt-1 text-xs sm:text-sm">
+                            <span className="font-semibold">Perfil:</span>{" "}
+                            <Link
+                              to={`/eventos/organizador/${selectedOrganizerProfile.slug}`}
+                              className="link link-primary font-medium"
+                            >
+                              {selectedOrganizerProfile.name || "Ver organizador"}
+                            </Link>
+                          </div>
+                        )}
                       </div>
                     </div>
 

@@ -59,3 +59,6 @@ export const getPublishedUsers = (params = {}, config = {}) =>
       ...params,
     },
   });
+
+export const getUserBySlug = (slug, config = {}) =>
+  client.get(`/users/${slug}`, config);

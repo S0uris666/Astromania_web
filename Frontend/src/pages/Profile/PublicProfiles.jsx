@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { Sparkles, Search, X, Filter, Tag, Users, Grid3X3, Rows } from "lucide-react";
 import ProfileSummaryCard from "./components/ProfileSummaryCard.jsx";
 import { getPublishedUsers } from "../../api/auth.js";
@@ -218,18 +219,34 @@ export default function PublicProfiles() {
             {filteredProfiles.map((profile, index) => {
               const baseKey = profile?._id || profile?.slug || profile?.email || `p-${index}`;
               const key = `${baseKey}-${view}`;
+              const slug = (profile?.slug || "").trim();
+              const hasEventsLink = slug.length > 0;
               return (
                 <div
                   key={key}
                   data-profile-key={baseKey}
-                  className="rounded-2xl border border-base-300/60 bg-base-100 hover:shadow-md transition overflow-hidden"
+                  className="rounded-2xl border border-base-300/60 bg-base-100 hover:shadow-md transition overflow-hidden flex flex-col"
                 >
                   <ProfileSummaryCard
                     user={profile}
                     isPublished
-                    className="bg-base-100"
+                    className="bg-base-100 flex-1"
                     orientation={view === "grid" ? "vertical" : "horizontal"}
                   />
+                  <div className="border-t border-base-200 bg-base-100 px-4 py-3 sm:px-6 sm:py-4">
+                    {hasEventsLink ? (
+                      <Link
+                        to={`/eventos/organizador/${slug}`}
+                        className="btn btn-primary btn-sm w-full sm:w-auto"
+                      >
+                        Ver Perfil
+                      </Link>
+                    ) : (
+                      <span className="text-xs sm:text-sm text-base-content/60">
+                        Este perfil aun no tiene un enlace de eventos disponible.
+                      </span>
+                    )}
+                  </div>
                 </div>
               );
             })}

@@ -43,6 +43,7 @@ import { PaymentSuccess } from "./pages/Payments/PaymentSuccess.jsx";
 import { PaymentPending } from "./pages/Payments/PaymentPending.jsx";
 import { PaymentFailure } from "./pages/Payments/PaymentFailure.jsx";
 import { PaymentNotification } from "./pages/Payments/PaymentNotification.jsx";
+import OrganizerEvents from "./pages/Events/OrganizerEvents.jsx";
 
 export default function AppRouter() {
   return (
@@ -92,6 +93,7 @@ export default function AppRouter() {
                   <Route path="/perfil_divulgador/editar" element={<SuperUserRoute component={ProfileEditor} />} />
 
                   <Route path="/eventos" element={<EventsCalendarPage />} />
+                  <Route path="/eventos/organizador/:slug" element={<OrganizerEvents />} />
 
                   {/* Rutas de Admin */}
                   <Route path="/admin/usuarios" element={<AdminRoute component={AdminUsers} />} />
