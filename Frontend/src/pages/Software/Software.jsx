@@ -276,7 +276,10 @@ function SoftwareCard({ item }) {
             {normalizedTags.map((tag) => {
               const slug = String(tag).replace(/\s+/g, "-");
               return (
-                <span key={slug} className="badge badge-ghost badge-sm lowercase">
+                <span
+                  key={`${item?.id || "tag"}-${slug}`}
+                  className="badge badge-ghost badge-sm lowercase"
+                >
                   {"#" + slug}
                 </span>
               );
