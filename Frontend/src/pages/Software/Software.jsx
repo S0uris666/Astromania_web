@@ -292,7 +292,7 @@ function SoftwareCard({ item }) {
 
         {normalizedTags.length > 0 && (
           <div className="mt-3 flex flex-wrap gap-2 text-xs text-base-content/70">
-            {normalizedTags.map(({ slug, label }) => (
+            {normalizedTags.map(({ slug}) => (
               <span
                 key={`${item?.id || "tag"}-${slug}`}
                 className="badge badge-ghost badge-sm lowercase"
