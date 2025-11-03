@@ -5,12 +5,13 @@ import { UserContext } from "../../context/user/UserContext";
 import logoImg from "../../assets/Images/logo.png";
 
 const RESOURCE_LINKS = [
-  
+  {label: "Actividades", to:"/recursos/actividades"},
   { label: "Literatura astronomica", to: "/recursos/literatura" },
   { label: "Musica y podcast", to: "/recursos/musica" },
-  { label: "Peliculas y series", to: "/recursos/peliculas-series" },
+  { label: "Canales y videocast", to: "/recursos/canales-videocast" },
   { label: "Software y apps", to: "/recursos/sofware-y-apps" },
-  { label: "Planetario interactivo", to: "/recursos/stellarium" },
+  { label: "Planetario interactivo", to: "/recursos/stellarium" }
+  
 ];
 
 const COMMUNITY_LINKS = [
@@ -206,10 +207,11 @@ export default function Header() {
           <NavLink to="/nosotros">Nosotros</NavLink>
 
           <div className="flex flex-wrap items-center gap-x-4 xl:gap-x-6 gap-y-2">
-            <Drop label="Recursos">
+            <Drop label="Recursos y Actividades">
+              <li><Link to="/recursos/actividades">Actividades</Link></li>
               <li><Link to="/recursos/literatura">Literatura Astronómica</Link></li>
               <li><Link to="/recursos/musica">Música y Podcast</Link></li>
-              <li><Link to="/recursos/peliculas-series">Películas y series</Link></li>
+              <li><Link to="/recursos/canales-videocast">Canales y videocast</Link></li>
               <li><Link to="/recursos/sofware-y-apps">Software y apps</Link></li>
               <li><Link to="/recursos/stellarium">Planetario interactivo</Link></li>
             </Drop>

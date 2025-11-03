@@ -29,9 +29,10 @@ const TYPE_OPTIONS = [
       </span>
     ),
   },
-  { value: "ficcion", label: "Cortos y ficción", icon: <Clapperboard className="w-4 h-4" /> },
+  { value: "ficcion", label: "Ciencia ficción", icon: <Clapperboard className="w-4 h-4" /> },
   { value: "series", label: "Series de TV", icon: <Tv className="w-4 h-4" /> },
-  { value: "archivo imagenes", label: "Imagenes", icon: <Tv className="w-4 h-4" /> }
+  { value: "archivo imagenes", label: "Imagenes", icon: <Tv className="w-4 h-4" /> },
+  { value: "corto", label: "Cortos", icon: <Tv className="w-4 h-4" /> }
   
 ];
 
@@ -56,7 +57,7 @@ export function Audiovisual() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-14">
         {/* Header (igual estilo) */}
         <header className="max-w-3xl mt-15">
-          <h1 className="text-3xl lg:text-4xl">Audiovisual</h1>
+          <h1 className="text-3xl lg:text-4xl">Canales y videocast</h1>
           <p className="mt-2 text-base text-base-content/80">
             Descubre documentales, series, canales de YouTube y archivos visuales para inspirar tus
             clases, talleres y momentos de divulgación.
@@ -64,7 +65,7 @@ export function Audiovisual() {
         </header>
 
         {/* Search + Filters (idéntico patrón) */}
-        <div className="mt-6 flex flex-col md:flex-row items-stretch md:items-center gap-3">
+        <div className="mt-6 flex flex-col gap-3 md:flex-row md:items-center md:gap-4">
           <label className="input input-bordered flex items-center gap-2 w-full md:max-w-md bg-base-100">
             <Search className="w-4 h-4 opacity-70" />
             <input
@@ -77,7 +78,7 @@ export function Audiovisual() {
             />
           </label>
 
-          <div className="join">
+          <div className="flex flex-wrap items-center gap-2 overflow-x-auto md:overflow-visible [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {TYPE_OPTIONS.map((opt) => (
               <button
                 key={opt.value}
@@ -87,7 +88,7 @@ export function Audiovisual() {
                 onClick={() => setType(opt.value)}
                 aria-pressed={type === opt.value}
               >
-                <span className="mr-2 hidden sm:inline-flex">{opt.icon}</span>
+                <span className="mr-2 hidden lg:inline-flex">{opt.icon}</span>
                 {opt.label}
               </button>
             ))}
@@ -127,9 +128,9 @@ function MediaCard({ item, badge }) {
   );
 
   return (
-    <article className="card h-full flex flex-col bg-base-100 border border-base-300/70 hover:border-base-300 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden">
+    <article className="group card h-full flex flex-col bg-base-100 border border-base-300/70 hover:border-base-300 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden">
       {/* Cabecera cuadrada para empatar el look */}
-      <figure className="relative aspect-square bg-base-300/70 grid place-items-center p-4 sm:p-5">
+      <figure className="relative aspect-[4/3] sm:aspect-square bg-base-300/70 grid place-items-center p-4 sm:p-5">
         {cover ? (
           <img
             src={cover}
@@ -189,14 +190,14 @@ function MediaCard({ item, badge }) {
           </div>
         )}
 
-        <div className="card-actions mt-4 flex-wrap gap-2 pt-4 border-t border-base-200">
+        <div className="card-actions mt-4 flex flex-col sm:flex-row sm:flex-wrap gap-2 pt-4 border-t border-base-200">
           {isValidUrl ? (
             <>
               <a
                 href={link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn btn-primary btn-sm normal-case"
+                className="btn btn-primary btn-sm normal-case w-full sm:w-auto"
                 title={linkLabel || "Abrir recurso"}
               >
                 {linkLabel || "Abrir recurso"}
@@ -205,7 +206,7 @@ function MediaCard({ item, badge }) {
                 href={link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn btn-ghost btn-sm normal-case"
+                className="btn btn-ghost btn-sm normal-case w-full sm:w-auto"
                 aria-label={`Abrir ${title} en nueva pestaña`}
                 title="Abrir en nueva pestaña"
               >

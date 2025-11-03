@@ -217,7 +217,7 @@ export default function PublicProfiles() {
               : "grid-cols-1"
           }`}>
             {filteredProfiles.map((profile, index) => {
-              const baseKey = profile?._id || profile?.slug || profile?.email || `p-${index}`;
+              const baseKey = profile?._id || profile?.slug || profile?.publicEmail || `p-${index}`;
               const key = `${baseKey}-${view}`;
               const slug = (profile?.slug || "").trim();
               const hasEventsLink = slug.length > 0;
@@ -256,3 +256,4 @@ export default function PublicProfiles() {
     </section>
   );
 }
+

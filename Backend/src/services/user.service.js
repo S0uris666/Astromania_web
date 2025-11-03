@@ -83,6 +83,10 @@ const FIELD_MAPPER = {
     const value = normText(v);
     return value ? value.toLowerCase() : value;
   },
+  publicEmail: (v) => {
+    const value = normText(v);
+    return value ? value.toLowerCase() : value;
+  },
 };
 
 export const updateProfile = async ({
@@ -135,6 +139,10 @@ export const updateProfile = async ({
   const canManageStatus =
     requesterRole === "admin" ||
     (requesterRole === "superuser" && isSelf);
+
+  if (updates.email && requesterRole !== "admin") {
+    delete updates.email;
+  }
 
   if (
     Object.prototype.hasOwnProperty.call(body, "status") &&

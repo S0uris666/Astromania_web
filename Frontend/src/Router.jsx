@@ -7,6 +7,7 @@ import { Home } from "./pages/Home/Home.jsx";
 import { AboutUs } from "./pages/AboutUs/AboutUs.jsx";
 import { ServiceProductList } from "./pages/ServiceProduct/List/ServiceProductList.jsx";
 import { ServiceProductSingle } from "./pages/ServiceProduct/Single/ServiceProductSingle.jsx";
+import ActivitiesSingle from "./pages/Recursos/Actividades/Single/ActivitiesSingle.jsx";
 import { Comunidad } from "./pages/Comunidad/Comunidad.jsx";
 import { Contacto } from "./pages/Contacto/Contacto.jsx";
 import { ScrollToTop } from "./components/ScrollToTop.jsx";
@@ -44,6 +45,7 @@ import { PaymentPending } from "./pages/Payments/PaymentPending.jsx";
 import { PaymentFailure } from "./pages/Payments/PaymentFailure.jsx";
 import { PaymentNotification } from "./pages/Payments/PaymentNotification.jsx";
 import OrganizerEvents from "./pages/Events/OrganizerEvents.jsx";
+import ActivitiesList from "./pages/Recursos/Actividades/List/ActivitiesList.jsx";
 
 export default function AppRouter() {
   return (
@@ -71,7 +73,9 @@ export default function AppRouter() {
                   <Route path="/recursos/musica" element={<MusicaAstronomica />} />
 
                   {/* Peliculas */}
-                   <Route path="/recursos/peliculas-series" element={<Audiovisual />} />
+                   <Route path="/recursos/canales-videocast" element={<Audiovisual />} />
+                   <Route path ="/recursos/actividades" element = {<ActivitiesList />} />
+                   <Route path="/recursos/actividades/:slug" element={<ActivitiesSingle />} />
 
 
                   <Route path="/comunidad" element={<Comunidad />} />
@@ -133,3 +137,5 @@ export default function AppRouter() {
     </UserState>
   );
 }
+
+

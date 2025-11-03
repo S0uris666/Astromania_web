@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useRef, useState } from "react";
+﻿import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { UserContext } from "../../context/user/UserContext";
 import ProfileForm from "./components/ProfileForm";
 import SocialLinksEditor from "./components/SocialLinksEditor";
@@ -11,6 +11,7 @@ const EMPTY_PROFILE = {
   especializacion: "",
   description: "",
   email: "",
+  publicEmail: "",
   status: "draft",
   city: "",
 };
@@ -24,7 +25,8 @@ const ProfilePreviewCard = ({
   const displayName = normalizeText(profile.username) || "Tu nombre";
   const profession = normalizeText(profile.profesion) || "Profesion o rol";
   const city = normalizeText(profile.city);
-  const email = normalizeText(profile.email);
+  const accountEmail = normalizeText(profile.email);
+  const publicEmail = normalizeText(profile.publicEmail);
   const status = normalizeText(profile.status);
   const isPublished = status === "published";
 /*   const statusLabel = isPublished ? "Publicado" : "Borrador";
@@ -75,11 +77,18 @@ const ProfilePreviewCard = ({
           </div>
         ) : null}
 
-        {email ? (
+        {accountEmail ? (
           <p className="text-sm">
-            <span className="font-semibold">Correo:</span>{" "}
-            <a href={`mailto:${email}`} className="link link-primary break-all">
-              {email}
+            <span className="font-semibold">Correo registrado:</span>{" "}
+            <span className="break-all">{accountEmail}</span>
+          </p>
+        ) : null}
+
+        {publicEmail ? (
+          <p className="text-sm">
+            <span className="font-semibold">Correo Publico:</span>{" "}
+            <a href={`mailto:${publicEmail}`} className="link link-primary break-all">
+              {publicEmail}
             </a>
           </p>
         ) : null}
@@ -165,6 +174,7 @@ const ProfileEditor = () => {
       images,
       city,
       email,
+      publicEmail,
       status,
     } = currentUser;
 
@@ -177,6 +187,7 @@ const ProfileEditor = () => {
           : JSON.stringify(especializacion ?? ""),
       description: description || "",
       email: email || "",
+      publicEmail: publicEmail || "",
       status:
         status === "published" || status === "draft" ? status : "draft",
       city: city || "",
@@ -232,6 +243,9 @@ const ProfileEditor = () => {
   );
 
   const handleFieldChange = (name, value) => {
+    if (name === "accountEmail") {
+      return;
+    }
     setProfile((prev) => ({
       ...prev,
       [name]: value,
@@ -277,11 +291,13 @@ const ProfileEditor = () => {
 
     try {
       const formData = new FormData();
+      
       formData.append("username", profile.username || "");
       formData.append("profesion", profile.profesion || "");
       formData.append("especializacion", profile.especializacion || "");
       formData.append("description", profile.description || "");
-      formData.append("email", profile.email || "");
+      formData.append("publicEmail", profile.publicEmail || "");
+      
       formData.append("status", profile.status || "");
       formData.append("city", profile.city || "");
 
@@ -376,3 +392,17 @@ const ProfileEditor = () => {
 };
 
 export default ProfileEditor;
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,17 +1,8 @@
-export const TYPE_FILTERS = [
-  { value: "all", label: "Todo" },
-  { value: "product", label: "Productos" },
-  { value: "service", label: "Servicios" },
-];
+const PLACEHOLDER_ACTIVITY = "https://placehold.co/1200x800?text=Actividad";
 
 export const TYPE_LABEL = {
-  product: "Producto",
-  service: "Servicio",
+  activity: "Actividad",
 };
-
-const PLACEHOLDER_PRODUCT = "https://placehold.co/900x600?text=Producto";
-const PLACEHOLDER_SERVICE = "https://placehold.co/900x600?text=Servicio";
-
 
 const PRICE_FORMATTER = new Intl.NumberFormat("es-CL", {
   style: "currency",
@@ -19,7 +10,7 @@ const PRICE_FORMATTER = new Intl.NumberFormat("es-CL", {
 });
 
 export const formatPrice = (value) =>
-  typeof value === "number" ? PRICE_FORMATTER.format(value) : "A cotizar";
+  typeof value === "number" ? PRICE_FORMATTER.format(value) : null;
 
 const buildCloudinaryUrl = (value, width, height) => {
   if (!value) return null;
@@ -39,11 +30,10 @@ const buildCloudinaryUrl = (value, width, height) => {
   return null;
 };
 
-const coverFromPlaceholder = (type) => {
-  if (type === "service") return { src: PLACEHOLDER_SERVICE, alt: "Servicio" };
-  
-  return { src: PLACEHOLDER_PRODUCT, alt: "Producto" };
-};
+const coverFromPlaceholder = () => ({
+  src: PLACEHOLDER_ACTIVITY,
+  alt: "Actividad",
+});
 
 export const getCoverData = (item = {}) => {
   const first = Array.isArray(item.images) ? item.images[0] : null;
@@ -69,27 +59,15 @@ export const getCoverData = (item = {}) => {
     };
   }
 
-  const type = String(item.type || "").toLowerCase();
-  return coverFromPlaceholder(type);
+  return coverFromPlaceholder();
 };
 
-export const filterItemsByType = (items, filterType) => {
-  const safeItems = Array.isArray(items) ? items : [];
-
-  if (filterType === "all") {
-    return safeItems.filter(
-      (item) =>
-        item?.active !== false &&
-        String(item.type || "").toLowerCase() !== "activity"
-    );
-  }
-
-  return safeItems.filter(
+export const filterItemsByType = (items) =>
+  (Array.isArray(items) ? items : []).filter(
     (item) =>
       item?.active !== false &&
-      String(item.type || "").toLowerCase() === filterType
+      String(item.type || "").toLowerCase() === "activity"
   );
-};
 
 export const buildServiceInfo = (item = {}) => {
   const info = [];
@@ -108,3 +86,4 @@ export const buildServiceInfo = (item = {}) => {
 
   return info;
 };
+

@@ -46,6 +46,18 @@ const userSchema = new mongoose.Schema(
         "Por favor ingresa un email válido",
       ],
     },
+    publicEmail: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      default: "",
+      validate: {
+        validator: (value) =>
+          !value ||
+          /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(value),
+        message: "Por favor ingresa un email público válido",
+      },
+    },
     password: {
       type: String,
       required: [true, "La contraseña es requerida"],
@@ -99,3 +111,4 @@ userSchema.index({ slug: 1 }, { unique: true, sparse: true });
 userSchema.index({ status: 1, role: 1 });
 
 export default mongoose.model("User", userSchema);
+

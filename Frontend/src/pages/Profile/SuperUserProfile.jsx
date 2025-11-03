@@ -1,4 +1,4 @@
-﻿import { useContext, useMemo } from "react";
+import { useContext, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { UserContext } from "../../context/user/UserContext";
 import { PaymentButton } from "../../components/Payment/PaymentButton";
@@ -43,6 +43,7 @@ export function SuperUserProfile() {
   const payerInfo = {
     name: currentUser?.username ?? "",
     email: currentUser?.email ?? "",
+    
   };
 
   const handleLogout = async () => {
@@ -155,7 +156,7 @@ export function SuperUserProfile() {
             <div className="card-body">
               <div className="flex items-center justify-between">
                 <h2 className="card-title">Carrito de productos</h2>
-                <span className="badge badge-outline">{cart.length} ítems</span>
+                <span className="badge badge-outline">{cart.length} Items</span>
               </div>
 
               {!cart.length ? (
@@ -237,7 +238,7 @@ export function SuperUserProfile() {
                         <p className="text-xs opacity-70 mt-2">
                           Debes{" "}
                           <Link to="/login" className="link link-primary">
-                            iniciar sesión
+                            iniciar sesion
                           </Link>{" "}
                           para completar el pago.
                         </p>
@@ -255,4 +256,5 @@ export function SuperUserProfile() {
 }
 
 export default SuperUserProfile;
+
 

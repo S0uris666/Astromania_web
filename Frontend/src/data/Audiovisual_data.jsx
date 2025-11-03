@@ -213,7 +213,7 @@ export const AUDIOVISUAL_ITEMS = [
     id: "vuelta-universo-series",
     category: "series",
     title: "Vuelta por el Universo (animación)",
-    provider: "Canal Pakapaka (Argentina). Animación, 26 capítulos. 2013.",
+    provider: "Canal Pakapaka (Argentina). Animación, 26 capítulos. 2013",
     description:
       "Gaby, Manu y Leo son tres amigos que por accidente, ponen en funcionamiento un cohete que los lleva a los confines del Universo. Su objetivo es encontrar el camino de regreso a la Tierra.",
     cover:
@@ -226,7 +226,8 @@ export const AUDIOVISUAL_ITEMS = [
     category: "series",
     title: "WAWUA - Serie animada de ALMA",
     provider: "Observatorio ALMA (Chile). Animación, 12 capítulos.",
-    description: "Esta serie animada te explica cómo hace ALMA para usar 66 antenas como si fueran una sola, cómo ve lo invisible y capta la presencia de complejas moléculas en lejanas nubes interestelares para descubrir nuestros orígenes cósmicos en los más recónditos rincones del Cosmos.",
+    description:
+      "Esta serie animada te explica cómo hace ALMA para usar 66 antenas como si fueran una sola, cómo ve lo invisible y capta la presencia de complejas moléculas en lejanas nubes interestelares para descubrir nuestros orígenes cósmicos en los más recónditos rincones del Cosmos.",
     cover:
       wawua,
     link: "https://kids.alma.cl/es/wawua-serie-animada-de-alma/",
@@ -234,7 +235,7 @@ export const AUDIOVISUAL_ITEMS = [
   },
   {
     id: "bepicolombo",
-    category: "ficcion",
+    category: "corto",
     title: "Las aventuras épicas de BepiColombo",
     provider: "Serie de cortos animados, 2018",
     description:
@@ -246,7 +247,7 @@ export const AUDIOVISUAL_ITEMS = [
   },
   {
     id: "Rosetta-philae",
-    category: "ficcion",
+    category: "corto",
     title: "Rosetta y Philae en busca del cometa 67P",
     provider: "Cortometraje animación, 24 min. 2014",
     description:
@@ -258,7 +259,7 @@ export const AUDIOVISUAL_ITEMS = [
   },
   {
     id: "pequeño-paso",
-    category: "ficcion",
+    category: "corto",
     title: "Un pequeño paso",
     provider: "Bobby Pontillas, Andrew Chesworth. Cortometraje animación, 7 min. 2018",
     description:
@@ -270,7 +271,7 @@ export const AUDIOVISUAL_ITEMS = [
   },
   {
     id: "ambition",
-    category: "ficcion",
+    category: "corto",
     title: "Ambition",
     provider: "Cortometraje, 4 min. 2014",
     description:
@@ -282,7 +283,7 @@ export const AUDIOVISUAL_ITEMS = [
   },
   {
     id: "wanderers",
-    category: " ficcion",
+    category: "corto ficcion",
     title: "Wanderers",
     provider: "Cortometraje, 6 min. 2014",
     description:
@@ -294,7 +295,7 @@ export const AUDIOVISUAL_ITEMS = [
   },
   {
     id: "laika",
-    category: "ficcion",
+    category: "corto",
     title: "Laika",
     provider: "Avgousta Zourelidi. Cortometraje animación, 9 min. 2010",
     description:
@@ -306,7 +307,7 @@ export const AUDIOVISUAL_ITEMS = [
   },
   {
     id: "cassini",
-    category: "ficcion",
+    category: "corto",
     title: "Cassini Mission",
     provider: "Cortometraje, 2 min. 2011",
     description:
@@ -818,7 +819,7 @@ export const AUDIOVISUAL_ITEMS = [
     cover:
       change3,
     link: "http://planetary.s3.amazonaws.com/data/change3/tcam.html",
-    linkLabel: "Registro desde Change 3",
+    linkLabel: "Registro desde Chang´e 3",
     link2: "http://planetary.s3.amazonaws.com/data/change3/pcam.html",
     linkLabel2: "Registro desde explorador Yutu",
   },

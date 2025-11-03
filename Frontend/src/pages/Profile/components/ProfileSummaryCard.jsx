@@ -58,7 +58,12 @@ export const ProfileSummaryCard = ({
   const displayName = normalizeText(user.username) || "Tu nombre";
   const profession = normalizeText(user.profesion) || "Profesion o rol";
   const city = normalizeText(user.city);
-  const email = normalizeText(user.email);
+
+  // Email público > email de cuenta
+  const accountEmail = normalizeText(user.email);
+  const publicEmail = normalizeText(user.publicEmail);
+  const contactEmail = publicEmail || accountEmail; // 
+  const contactLabel = publicEmail ? "Correo público" : "Correo";
 
   const descriptionText =
     normalizeText(user.description) ||
@@ -69,6 +74,7 @@ export const ProfileSummaryCard = ({
   const specializationList = parseSpecializations(user.especializacion);
   const profileLinks = buildProfileLinks(user.links);
   const imageUrl = getPrimaryImageUrl(user.images);
+
   const orientationKey = ORIENTATION_CONFIG[orientation] ? orientation : "auto";
   const layout = ORIENTATION_CONFIG[orientationKey];
 
@@ -101,7 +107,7 @@ export const ProfileSummaryCard = ({
       {...rest}
     >
       <div className={layout.layout}>
-        {/* Panel de imagen */}
+        {/* Imagen */}
         <div className={layout.mediaPanel}>
           <div className="p-6 flex items-center justify-center">
             <div className="w-full max-w-[14rem] sm:max-w-[16rem] mx-auto">
@@ -134,7 +140,7 @@ export const ProfileSummaryCard = ({
         <div className={`h-px w-full bg-base-200 ${layout.horizontalSeparator}`} aria-hidden />
         <div className={`${layout.verticalSeparator} w-px bg-base-200`} aria-hidden />
 
-        {/* Panel de contenido */}
+        {/* Contenido */}
         <div className="flex-1 p-6 sm:p-8">
           <header className={`space-y-2 ${layout.headerAlign}`}>
             <h2 className={`text-2xl sm:text-3xl font-bold leading-tight text-balance ${layout.titleShift}`}>
@@ -168,16 +174,17 @@ export const ProfileSummaryCard = ({
             </div>
           )}
 
-          {email && (
+          {/* ÚNICO bloque de correo: público > cuenta */}
+          {contactEmail && (
             <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-lg border border-base-200 bg-base-100 px-3 py-2">
               <span className="text-sm text-center sm:text-left">
-                <span className="font-semibold">Correo:</span>{" "}
+                <span className="font-semibold">{contactLabel}:</span>{" "}
                 <a
-                  href={`mailto:${email}`}
+                  href={`mailto:${contactEmail}`}
                   className="link link-hover link-secondary break-all"
-                  title={`Enviar correo a ${email}`}
+                  title={`Enviar correo a ${contactEmail}`}
                 >
-                  {email}
+                  {contactEmail}
                 </a>
               </span>
               <button
@@ -186,7 +193,7 @@ export const ProfileSummaryCard = ({
                 data-tip="Copiar correo"
                 onClick={async (event) => {
                   const element = event.currentTarget;
-                  const ok = await copyToClipboard(email);
+                  const ok = await copyToClipboard(contactEmail);
                   element.dataset.tip = ok ? "Copiado" : "No se pudo copiar";
                   setTimeout(() => {
                     element.dataset.tip = "Copiar correo";
@@ -207,10 +214,7 @@ export const ProfileSummaryCard = ({
           )}
 
           {profileLinks.length > 0 && (
-            <nav
-              className={`mt-5 flex flex-wrap gap-2 ${layout.linksJustify}`}
-              aria-label="Enlaces de perfil"
-            >
+            <nav className={`mt-5 flex flex-wrap gap-2 ${layout.linksJustify}`} aria-label="Enlaces de perfil">
               {profileLinks.map((link, index) => (
                 <a
                   key={`${link.url}-${index}`}
@@ -219,7 +223,7 @@ export const ProfileSummaryCard = ({
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 rounded-lg border border-base-300 px-3 py-1.5 text-sm text-base-content/80 hover:border-primary/50 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 transition"
                   title={link.label || link.url}
-                  aria-label={`Abrir ${link.label || link.url} en nueva pestana`}
+                  aria-label={`Abrir ${link.label || link.url} en nueva pestaña`}
                 >
                   <ExternalLink className="size-4 opacity-80" />
                   <span className="max-w-[22ch] truncate">{link.label || link.url}</span>
