@@ -1,11 +1,10 @@
 import primera_mujer from "../assets/Images/literatura/cuentos/mujer.png";
 import libroastro from "../assets/Images/literatura/cuentos/libroastro.webp";
 import bruno from "../assets/Images/literatura/cuentos/bruno.webp";
-
 import ALMAheroes from "../assets/Images/literatura/cuentos/ALMAheroes.webp"
 import Cazadores from "../assets/Images/literatura/cuentos/Cazadores.webp"
-
 import gatozombie from "../assets/Images/literatura/cuentos/gatozombie.webp"
+import cosmocuentos from "../assets/Images/literatura/cuentos/cosmocuentos.webp"
 
 
 export const literatura_juvenil = [
@@ -16,7 +15,7 @@ export const literatura_juvenil = [
     autor: "Brad Gann y Steven List. Traducción de Melania Suárez.",
     description:
       "Novela gráfica de la NASA que sigue a Callie en su camino para convertirse en la primera mujer en pisar la Luna. Acompañada por el robot RT supera contratiempos, decepciones y tragedias hasta lograr su misión.",
-    link: "link",
+    link: "https://drive.google.com/file/d/1Qk2zCt9NDC7WkTcCi8hVo6KLg3d2r3GJ/view?usp=sharing",
     imagen: primera_mujer,
   },
   {
@@ -26,7 +25,7 @@ export const literatura_juvenil = [
     autor: "David Hughes, Tom Jackson, Penny Johnson, Robert Dinwiddie",
     description:
       "Con un lenguaje claro, proporciona breves y sencillas explicaciones que aclaran la jerga científica, esquemas que desbrozan complejas teorías, ilustraciones que juegan con nuestro conocimiento de los astros e ingeniosas citas que condensan los descubrimientos astronómicos.",
-    link: "https://archive.org/details/iii-el-libro-de-la-astronomia-978-0-2416-5739-3-2021/mode/2up",
+    link: "https://drive.google.com/file/d/1-YM2A1HOCxYDyN9EWQqbqAoUa0r9xA2h/view?usp=sharing",
     imagen: libroastro,
   },
   {
@@ -36,7 +35,7 @@ export const literatura_juvenil = [
     autor: "Observatorio ALMA.",
     description:
       "¿Quiénes son los que hacen posible las impresionantes observaciones del Universo que logra ALMA? ¿Son solamente astrónomos? ¿Son realmente humanos?.",
-    link: "https://www.curriculumnacional.cl/portal/Asignatura/Ciencias-Naturales/246889:La-creacion-del-todo",
+    link: "https://www.almaobservatory.org/es/extension/alma-heroes-es/",
     imagen: ALMAheroes,
   },
   {
@@ -66,17 +65,17 @@ export const literatura_juvenil = [
     autor: "Big Van, científicos sobre ruedas.",
     description:
       "Si eres de los que piensa que saber que el tiempo y el espacio son en realidad lo mismo no sirve para nada, o que lo único que le puede decir un protón a un electrón es que deje de ser tan negativo…, ¡has dado con la lectura que necesitabas!",
-    link: "https://astromania.cl/wp-content/uploads/2013/07/cOmoExplicarFIsicaCuAnticaconunGatoZombi.pdf",
+    link: "https://drive.google.com/file/d/1Nl6GTxwMzPr5ddOBbTyuHRJCy7MMG3Cb/view?usp=sharing",
     imagen: gatozombie,
   },
   {
     id: 7,
     category: "juvenil",
-    title: "Bajo el cielo de Atacama",
-    autor: "Pierre Christin, Oliver Balez. Pierre Christin, Oliver Balez.",
+    title: "10 años de Cosmocuentos",
+    autor: "Varios autores, Fundación Astromanía",
     description:
-      "El cómic invita a reflexionar sobre la construcción de este observatorio ALMA en San Pedro de Atacama (Chile) y la relación de la humanidad con el universo, a través de la lente del cielo despejado de Atacama, famoso por su calidad astronómica. narra la historia del observatorio astronómico ALMA en San Pedro de Atacama, Chile. El cómic invita a reflexionar sobre la construcción de este observatorio y la relación de la humanidad con el universo, a través de la lente del cielo despejado de Atacama, famoso por su calidad astronómica.",
-    link: "https://astromania.cl/wp-content/uploads/2013/07/cOmoExplicarFIsicaCuAnticaconunGatoZombi.pdf",
-    imagen: gatozombie,
+      "Astronómica recopilación de cuentos breves de los 10 años del concurso iberoamericana de poesía astronómica realizado por Fundación Astromanía. Originales ilustraciones que acompañanan las increíbles historias del cosmos a manos de diferentes autores de variados rincones de Iberoamérica",
+    link: "https://online.fliphtml5.com/wzaww/okjd",
+    imagen: cosmocuentos,
   },
 ];

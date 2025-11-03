@@ -2,10 +2,10 @@ import { useMemo, useState } from "react";
 import {
   Search,
   Sparkles,
-  Clapperboard,
+  Globe,
   Satellite,
-  Film,
-  MonitorPlay,
+  Telescope,
+  Gamepad2,
   ExternalLink,
   ChevronDown,
 } from "lucide-react";
@@ -15,22 +15,18 @@ import { filterByCategoryAndQuery } from "../../utils/filters.js";
 
 const TYPE_OPTIONS = [
   { value: "all", label: "Todos", icon: <Sparkles className="w-4 h-4" /> },
+  { value: "online", label: "Online", icon: <Globe className="w-4 h-4" /> },
   {
-    value: "documentales",
-    label: "Documentales",
-    icon: <Clapperboard className="w-4 h-4" />,
-  },
-  {
-    value: "canales",
-    label: "Canales y archivos",
+    value: "simulacion",
+    label: "Simulacion",
     icon: <Satellite className="w-4 h-4" />,
   },
-  { value: "ficcion", label: "Ficción", icon: <Film className="w-4 h-4" /> },
   {
-    value: "series",
-    label: "Series",
-    icon: <MonitorPlay className="w-4 h-4" />,
+    value: "planetario",
+    label: "Planetario",
+    icon: <Telescope className="w-4 h-4" />,
   },
+  { value: "juegos", label: "Juegos", icon: <Gamepad2 className="w-4 h-4" /> },
 ];
 
 const TYPE_LABEL = TYPE_OPTIONS.reduce(
@@ -39,22 +35,29 @@ const TYPE_LABEL = TYPE_OPTIONS.reduce(
 );
 
 const CATEGORY_DESCRIPTION = {
-  all: "Explora documentales, canales oficiales, ficción y series que acercan el universo desde múltiples formatos.",
-  documentales:
-    "Producciones que narran misiones, telescopios y descubrimientos con rigor científico.",
-  canales:
-    "Canales y archivos oficiales con contenido actualizado, transmisiones y material descargable.",
-  ficcion:
-    "Historias inspiradas en la astronomía que combinan ciencia, narrativa y visuales inmersivos.",
-  series:
-    "Series documentales y docudramas que profundizan en misiones y futuros posibles en el espacio.",
+  all: "Explora herramientas online, simuladores, planetarios y juegos astronomicos seleccionados.",
+  online:
+    "Aplicaciones web e interactivas que funcionan directamente en el navegador.",
+  simulacion:
+    "Simuladores y experiencias inmersivas para estudiar fenomenos y misiones espaciales.",
+  planetario:
+    "Planetarios virtuales y mapas del cielo que facilitan la observacion y la planificacion.",
+  juegos:
+    "Juegos y experiencias ludicas que acercan la astronomia de forma entretenida.",
 };
 
 export function Software() {
   const [query, setQuery] = useState("");
   const [type, setType] = useState("all");
 
-  const catalogue = useMemo(() => SOFTWARE_ITEMS, []);
+  const catalogue = useMemo(
+    () =>
+      SOFTWARE_ITEMS.map((item) => ({
+        ...item,
+        badge: TYPE_LABEL[item?.category] || "Otros",
+      })),
+    []
+  );
 
   const filtered = useMemo(
     () =>
@@ -63,7 +66,9 @@ export function Software() {
         fieldSelector: (item) => [
           item?.title,
           item?.provider,
-          item?.description,
+          item?.desc,
+          Array.isArray(item?.tags) ? item.tags.join(" ") : undefined,
+          Array.isArray(item?.platforms) ? item.platforms.join(" ") : undefined,
         ],
       }),
     [catalogue, type, query]
@@ -79,11 +84,11 @@ export function Software() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-14">
         {/* Header */}
         <header className="max-w-3xl mt-15">
-          <h1 className="text-3xl lg:text-4xl">Software y recursos audiovisuales</h1>
+          <h1 className="text-3xl lg:text-4xl">Software y recursos interactivos</h1>
           <p className="mt-2 text-base text-base-content/80">
-            Selección curada de documentales, canales oficiales, series y ficciones
-            que amplifican el aprendizaje de la astronomía con experiencias visuales,
-            narrativas y herramientas contrastadas.
+            Seleccion curada de herramientas online, simuladores, planetarios y juegos
+            que amplifican el aprendizaje de la astronomia con experiencias guiadas y
+            experimentacion directa.
           </p>
         </header>
 
@@ -94,10 +99,10 @@ export function Software() {
             <input
               type="text"
               className="grow"
-              placeholder="Buscar por título, autor o descripción…"
+              placeholder="Buscar por titulo, autor o descripcion"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              aria-label="Buscar en catálogo de software"
+              aria-label="Buscar en catalogo de software"
             />
           </label>
 
@@ -145,18 +150,44 @@ export function Software() {
   );
 }
 
-function SoftwareCard({ item, badge }) {
-  const { title, provider, description = "", cover, link, linkLabel } = item || {};
+function SoftwareCard({ item }) {
+  const {
+    title,
+    provider,
+    desc: rawDescription = "",
+    cover,
+    link,
+    linkLabel,
+    badge,
+    tags = [],
+    platforms = [],
+  } = item || {};
   const [expanded, setExpanded] = useState(false);
-  const desc = (description ?? "").trim();
+  const desc = (rawDescription ?? "").trim();
   const isValidUrl = typeof link === "string" && /^https?:\/\//i.test(link);
 
   const THRESHOLD = 140;
   const needsToggle = useMemo(() => desc.length > THRESHOLD, [desc]);
   const shortText = useMemo(() => desc.slice(0, THRESHOLD), [desc]);
   const truncated = useMemo(
-    () => (needsToggle ? `${shortText}...` : desc),
+    () => (needsToggle ? shortText + "..." : desc),
     [needsToggle, shortText, desc]
+  );
+
+  const normalizedPlatforms = useMemo(
+    () =>
+      Array.isArray(platforms)
+        ? platforms.filter(Boolean).map((value) => String(value))
+        : [],
+    [platforms]
+  );
+
+  const normalizedTags = useMemo(
+    () =>
+      Array.isArray(tags)
+        ? tags.filter(Boolean).map((value) => String(value))
+        : [],
+    [tags]
   );
 
   return (
@@ -165,7 +196,7 @@ function SoftwareCard({ item, badge }) {
         {cover ? (
           <img
             src={cover}
-            alt=""
+            alt={title ? "Imagen del recurso " + title : "Imagen del recurso"}
             className="max-w-full max-h-full object-contain drop-shadow-sm"
             loading="lazy"
             decoding="async"
@@ -180,7 +211,7 @@ function SoftwareCard({ item, badge }) {
       <div className="card-body flex flex-col">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
           <h3 className="card-title text-lg sm:text-xl leading-tight">
-            {title || "Título no disponible"}
+            {title || "Titulo no disponible"}
           </h3>
 
           {!!badge && (
@@ -190,12 +221,21 @@ function SoftwareCard({ item, badge }) {
           )}
         </div>
 
-
-
         {provider && (
-          <p className="mt-1 text-sm font-medium text-base-content/70">
-            {provider}
-          </p>
+          <p className="mt-1 text-sm font-medium text-base-content/70">{provider}</p>
+        )}
+
+        {normalizedPlatforms.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-2 text-xs font-semibold uppercase tracking-wide text-base-content/70">
+            {normalizedPlatforms.map((platform) => (
+              <span
+                key={platform}
+                className="badge badge-outline badge-sm bg-base-100"
+              >
+                {platform}
+              </span>
+            ))}
+          </div>
         )}
 
         {!!desc && (
@@ -207,24 +247,40 @@ function SoftwareCard({ item, badge }) {
             {needsToggle && (
               <button
                 type="button"
-                onClick={() => setExpanded((v) => !v)}
+                onClick={() => setExpanded((value) => !value)}
                 className="group mt-3 inline-flex items-center gap-2 text-secondary text-xs font-semibold tracking-wide uppercase"
                 aria-expanded={expanded}
                 aria-label={
-                  expanded ? "Ver menos descripción" : "Ver más descripción"
+                  expanded ? "Ver menos descripcion" : "Ver mas descripcion"
                 }
               >
-                <span>{expanded ? "Ver menos" : "Ver más"}</span>
+                <span>{expanded ? "Ver menos" : "Ver mas"}</span>
                 <span
-                  className={`flex h-5 w-5 items-center justify-center rounded-full border border-secondary transition-transform duration-300 ${
-                    expanded ? "rotate-180" : ""
-                  }`}
+                  className={[
+                    "flex h-5 w-5 items-center justify-center rounded-full border border-secondary transition-transform duration-300",
+                    expanded ? "rotate-180" : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
                   aria-hidden="true"
                 >
                   <ChevronDown className="w-3 h-3" />
                 </span>
               </button>
             )}
+          </div>
+        )}
+
+        {normalizedTags.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-2 text-xs text-base-content/70">
+            {normalizedTags.map((tag) => {
+              const slug = String(tag).replace(/\s+/g, "-");
+              return (
+                <span key={slug} className="badge badge-ghost badge-sm lowercase">
+                  {"#" + slug}
+                </span>
+              );
+            })}
           </div>
         )}
 
@@ -245,11 +301,11 @@ function SoftwareCard({ item, badge }) {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn-ghost btn-sm normal-case"
-                aria-label={`Abrir ${title} en nueva pestaña`}
-                title="Abrir en nueva pestaña"
+                aria-label={"Abrir " + (title || "este recurso") + " en nueva pestana"}
+                title="Abrir en nueva pestana"
               >
                 <ExternalLink className="w-4 h-4" />
-                <span className="sr-only">Abrir en nueva pestaña</span>
+                <span className="sr-only">Abrir en nueva pestana</span>
               </a>
             </>
           ) : (
@@ -262,9 +318,6 @@ function SoftwareCard({ item, badge }) {
             </button>
           )}
         </div>
-
-
-       
       </div>
     </article>
   );
@@ -285,3 +338,6 @@ function EmptyState({ onClear }) {
     </div>
   );
 }
+
+
+
