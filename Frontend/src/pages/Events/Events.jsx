@@ -480,7 +480,7 @@ export function EventsCalendarPage() {
                             <span className="font-semibold">Perfil:</span>{" "}
                             <Link
                               to={`/eventos/organizador/${selectedOrganizerProfile.slug}`}
-                              className="link link-primary font-medium"
+                              className="link link-secondary font-medium"
                             >
                               {selectedOrganizerProfile.name || "Ver organizador"}
                             </Link>
@@ -582,5 +582,4 @@ export function EventsCalendarPage() {
 }
 
 export default EventsCalendarPage;
-
 
