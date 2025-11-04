@@ -1,20 +1,130 @@
 import { createPaymentPreference, getPaymentById } from "../services/payment.service.js";
+import { sendPurchaseConfirmationMail } from "../services/mailer.service.js";
+import User from "../models/User.model.js";
+
+const processedPayments = new Set();
+
+const formatCurrency = (value, currency = "CLP") =>
+  new Intl.NumberFormat("es-CL", {
+    style: "currency",
+    currency,
+  }).format(Number(value || 0));
+
+const parseItemsFromMetadata = (payment) => {
+  const metadataItems = payment?.metadata?.orderItems;
+  if (!metadataItems) return [];
+  try {
+    const parsed = JSON.parse(metadataItems);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.map((item) => ({
+      title: item.title,
+      quantity: Number(item.quantity || 1),
+      unit_price: Number(item.unit_price || item.price || 0),
+    }));
+  } catch (error) {
+    console.error("Error parsing orderItems metadata:", error);
+    return [];
+  }
+};
+
+const sendConfirmationEmailIfNeeded = async (payment) => {
+  try {
+    if (!payment?.id) return;
+    if (processedPayments.has(payment.id)) return;
+    if (payment.status !== "approved") return;
+
+    const userId = payment?.metadata?.userId;
+    let payerEmail =
+      payment?.metadata?.buyerEmail ||
+      payment?.payer?.email ||
+      payment?.payer?.payer_email ||
+      "";
+
+    if (!payerEmail && userId) {
+      try {
+        const user = await User.findById(userId).select("email");
+        if (user?.email) {
+          payerEmail = user.email;
+        }
+      } catch (dbError) {
+        console.error("Error fetching user email:", dbError);
+      }
+    }
+
+    const teamEmail = process.env.SMTP_JP;
+
+    if (!payerEmail && !teamEmail) return;
+
+    const currencyId = payment?.currency_id || "CLP";
+    const orderItems = parseItemsFromMetadata(payment);
+
+    const itemsHtml = orderItems.length
+      ? orderItems
+          .map(
+            (item) =>
+              `<li><strong>${item.title}</strong> x${item.quantity} - ${formatCurrency(
+                item.unit_price,
+                currencyId,
+              )}</li>`,
+          )
+          .join("")
+      : "<li>Tu compra se registró correctamente.</li>";
+
+    const totalAmount =
+      payment?.transaction_amount ??
+      orderItems.reduce(
+        (total, current) => total + (current.unit_price || 0) * (current.quantity || 0),
+        0,
+      );
+
+    const buyerName =
+      payment?.metadata?.buyerName ||
+      payment?.payer?.name ||
+      "";
+
+    const html = `
+      <div style="font-family: Arial, Helvetica, sans-serif; font-size: 14px; color: #111827;">
+        <h2 style="color: #2563eb;">¡Gracias por tu compra${buyerName ? `, ${buyerName}` : ""}!</h2>
+        <p>Hemos recibido tu pago correctamente. Aquí tienes un resumen:</p>
+        <ul>
+          ${itemsHtml}
+        </ul>
+        <p><strong>Total pagado:</strong> ${formatCurrency(totalAmount, currencyId)}</p>
+        <p style="margin-top: 16px;">Si necesitas asistencia, escríbenos a contacto@astromania.cl.</p>
+        <p style="margin-top: 24px;">Equipo Astromanía</p>
+      </div>
+    `;
+
+    await sendPurchaseConfirmationMail({
+      to: payerEmail || teamEmail,
+      subject: "Confirmación de compra | Astromanía",
+      html,
+      bcc: payerEmail && teamEmail && payerEmail !== teamEmail ? teamEmail : undefined,
+    });
+
+    processedPayments.add(payment.id);
+  } catch (error) {
+    console.error("Error sending purchase confirmation email:", error);
+  }
+};
 
 // Crea preferencia
 export const createPreference = async (req, res) => {
   try {
     const body = req.body;
 
-    // Asegura contexto para conciliaciÃ³n
     const preference = await createPaymentPreference({
       ...body,
-      external_reference: body.external_reference ?? `${body?.metadata?.eventId || "event"}-${body?.metadata?.userId || "user"}-${Date.now()}`
+      external_reference:
+        body.external_reference ??
+        `${body?.metadata?.eventId || "event"}-${body?.metadata?.userId || "user"}-${Date.now()}`,
     });
 
-    res.json(preference); // { id, init_point }
+    res.json(preference);
   } catch (error) {
-    res.status(500).json({ error: error.message ,
-      cause: error?.cause
+    res.status(500).json({
+      error: error.message,
+      cause: error?.cause,
     });
   }
 };
@@ -26,23 +136,31 @@ export const getStatus = async (req, res) => {
     const data = await getPaymentById(paymentId);
     res.json({
       id: data.id,
-      status: data.status,             // approved | rejected | pending | in_process...
+      status: data.status,
       status_detail: data.status_detail,
       transaction_amount: data.transaction_amount,
       currency_id: data.currency_id,
       payer: data.payer,
       order: data.order,
       external_reference: data.external_reference,
-      metadata: data.metadata
+      metadata: data.metadata,
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-// Ã‰xito / fracaso (opcional: mostrar info al usuario)
-export const successReturn = (req, res) => {
-  // MP anexarÃ¡ query params: payment_id, status, merchant_order_id, preference_id
+export const successReturn = async (req, res) => {
+  try {
+    const paymentId = req.query.payment_id || req.query.id;
+    if (paymentId) {
+      const payment = await getPaymentById(paymentId);
+      await sendConfirmationEmailIfNeeded(payment);
+    }
+  } catch (error) {
+    console.error("Error handling successReturn:", error);
+  }
+
   res.send("Pago aprobado. Puedes cerrar esta ventana.");
 };
 
@@ -54,13 +172,10 @@ export const pendingReturn = (req, res) => {
   res.send("Pago pendiente.");
 };
 
-// Webhook: validar y actualizar tu BD
 export const webhook = async (req, res) => {
   try {
-    // MP puede enviar varias clases de notificaciÃ³n. En Checkout Pro, la mÃ¡s comÃºn es topic=payment
-    const { type, action, data, id, topic } = req.body;
+    const { data, id } = req.body;
 
-    // Soporte para ambos formatos:
     const paymentId =
       (data && (data.id || data.paymentId)) ||
       req.query["data.id"] ||
@@ -68,16 +183,14 @@ export const webhook = async (req, res) => {
       id;
 
     if (!paymentId) {
-      // Importante responder 200 igualmente para que MP no reintente eternamente
       return res.status(200).send("OK (sin paymentId)");
     }
 
-    // ObtÃ©n el pago para verificar monto, estado, etc.
     const payment = await getPaymentById(paymentId);
+    await sendConfirmationEmailIfNeeded(payment);
 
     return res.status(200).send("OK");
   } catch (err) {
-    // Igualmente responde 200 para evitar tormenta de reintentos, pero loguea el error
     console.error("Webhook error:", err);
     return res.status(200).send("OK");
   }

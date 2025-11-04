@@ -3,8 +3,8 @@ import { useState } from "react";
 import { usePayment } from "../../context/payment/paymentContext";
 
 /**
- * Botón de pago minimalista con redirección inmediata a Mercado Pago (Web Checkout).
- * - Crea la preferencia en  backend.
+ * Botón de pago con redirección inmediata a Mercado Pago (Web Checkout).
+ * - Crea la preferencia en backend.
  * - Redirige automáticamente a preference.init_point (o sandbox_init_point).
  * - Muestra estado de carga y errores con DaisyUI.
  */
@@ -24,30 +24,45 @@ export function PaymentButton({
     try {
       setLocalLoading(true);
 
-      // back_urls para tu app
-      const back_urls = {
+      const backUrls = {
         success: `${window.location.origin}/payment/success`,
         failure: `${window.location.origin}/payment/failure`,
         pending: `${window.location.origin}/payment/pending`,
       };
 
-      // Si tu contexto acepta (items, back_urls), mantenemos la firma:
+      const normalizedItems = items.map((item) => ({
+        title: item.title,
+        quantity: Number(item.quantity || 1),
+        unit_price: Number(item.price || 0),
+      }));
+
+      const metadata = {
+        orderItems: JSON.stringify(normalizedItems),
+        buyerEmail: payerInfo.email || "",
+        buyerName: payerInfo.name || "",
+        userId: payerInfo.userId || "",
+        totalAmount: String(
+          normalizedItems.reduce(
+            (total, current) => total + (current.unit_price || 0) * (current.quantity || 0),
+            0,
+          ),
+        ),
+        currency: "CLP",
+        createdAt: new Date().toISOString(),
+      };
+
       const preference = await createPreference(items, {
-        ...back_urls,
-        // Si tu backend lo usa, puedes enviar datos del pagador como metadata:
+        ...backUrls,
         payerName: payerInfo.name,
         payerEmail: payerInfo.email,
+        metadata,
       });
 
-      // Mercado Pago devuelve init_point (producción) y sandbox_init_point (sandbox):
-      const checkoutUrl =
-        preference?.init_point || preference?.sandbox_init_point;
-
+      const checkoutUrl = preference?.init_point || preference?.sandbox_init_point;
       if (!checkoutUrl) {
         throw new Error("No se recibió la URL de checkout (init_point).");
       }
 
-      // Redirigir inmediatamente
       window.location.href = checkoutUrl;
     } catch (err) {
       console.error("Error al iniciar el pago:", err);
@@ -72,7 +87,7 @@ export function PaymentButton({
         className={[
           "btn btn-primary btn-block gap-2 rounded-xl shadow-md",
           "transition-all duration-150 active:scale-[0.98] hover:shadow-lg",
-          disabled || loading ? "opacity-90 cursor-not-allowed" : "",
+          disabled || loading ? "cursor-not-allowed opacity-90" : "",
           className,
         ].join(" ")}
         aria-busy={loading}

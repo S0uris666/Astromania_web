@@ -55,3 +55,25 @@ export async function sendContactMail({
     html,
   });
 }
+
+export async function sendPurchaseConfirmationMail({
+  to,
+  subject = "Confirmación de compra - Astromanía",
+  html,
+  bcc,
+}) {
+  const { SMTP_USER } = process.env;
+
+  if (!SMTP_USER || !to) {
+    throw new Error("Purchase confirmation mail addresses not configured");
+  }
+
+  const transporter = createTransporter();
+  await transporter.sendMail({
+    from: `Astromania WEB <${SMTP_USER}>`,
+    to,
+    bcc,
+    subject,
+    html,
+  });
+}

@@ -41,50 +41,94 @@ export const ServiceProductList = () => {
 
   return (
     <div className="mt-15 mx-auto max-w-7xl space-y-8 px-4 pb-12 pt-10 sm:px-6 lg:px-8">
-      <header className="relative overflow-hidden rounded-3xl border border-base-300/60 bg-base-100 shadow-xl">
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_right,rgba(99,102,241,0.16),transparent_55%),radial-gradient(circle_at_bottom_left,rgba(56,189,248,0.18),transparent_45%),linear-gradient(135deg,rgba(15,23,42,0.92),rgba(15,23,42,0.4))]" />
-        <div className="absolute -right-24 bottom-0 hidden h-56 w-56 rounded-full bg-primary/30 blur-3xl sm:block" />
-        <div className="relative flex flex-col gap-8 px-6 py-12 text-white sm:px-10 lg:flex-row lg:items-center lg:justify-between">
-          <div className="max-w-2xl space-y-5">
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1 text-[11px] font-semibold tracking-[0.3em] uppercase text-white/70">
-              Universo Astromania
-            </span>
-            <div className="space-y-3">
-              <h1 className="text-3xl font-black leading-tight sm:text-4xl">
-                Servicios, productos y experiencias astronomicas
-              </h1>
-              <p className="text-sm sm:text-base text-white/80">
-                Un catalogo seleccionado para colegios, municipios, empresas y familias que buscan vivir la astronomia de una forma cercana y memorable.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-3 text-xs text-white/75">
-              <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1">
-                {items.length} opciones disponibles
-              </span>
-              <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1">
-                Actividades presenciales y virtuales
-              </span>
-            </div>
+<header className="relative overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-md">
+  {/* Fondo sobrio con degradé sutil */}
+  <div className="absolute inset-0 -z-10">
+    <div className="absolute inset-0 bg-gradient-to-br from-base-200 via-base-300/30 to-base-200" />
+    <div className="absolute -right-20 bottom-0 hidden h-44 w-44 rounded-full bg-primary/15 blur-3xl md:block" />
+  </div>
+
+  <div className="relative flex flex-col gap-6 px-4 py-8 text-base-content sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:py-10">
+    {/* Columna izquierda: texto y stats */}
+    <div className="max-w-2xl space-y-4">
+      <span className="inline-flex items-center gap-2 rounded-full border border-base-300 bg-base-100 px-3 py-0.5 text-[10px] font-semibold uppercase tracking-[0.28em] text-base-content/70">
+        Universo Astromanía
+      </span>
+
+      <div className="space-y-2">
+        <h1 className="text-2xl font-extrabold leading-tight sm:text-3xl">
+          Servicios, productos y experiencias astronómicas
+        </h1>
+        <p className="text-sm text-base-content/70 sm:text-[15px]">
+          Un catálogo para colegios, municipios, empresas y familias que buscan vivir la astronomía de forma cercana y memorable.
+        </p>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="inline-flex items-center gap-2 rounded-full border border-base-300 bg-base-100 px-2.5 py-0.5 text-[11px] text-base-content/70">
+          {(items?.length ?? 0)} opciones disponibles
+        </span>
+        <span className="inline-flex items-center gap-2 rounded-full border border-base-300 bg-base-100 px-2.5 py-0.5 text-[11px] text-base-content/70">
+          Presenciales y virtuales
+        </span>
+      </div>
+    </div>
+
+    {/* Columna derecha: pasos (tarjeta compacta) */}
+    <div className="w-full max-w-md rounded-2xl border border-base-300 bg-base-100 p-5 text-sm text-base-content shadow-sm">
+      <h2 className="text-[15px] font-semibold">Cómo comprar</h2>
+
+      {/* En 2 columnas desde sm para ahorrar alto */}
+      <ol className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <li className="flex gap-2.5">
+          <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-content">1</span>
+          <div>
+            <p className="font-medium leading-tight">Agrega al carrito</p>
+            <p className="text-xs text-base-content/70">Elige cantidad/variantes.</p>
           </div>
-          <div className="w-full max-w-md space-y-4 rounded-3xl border border-white/15 bg-white/10 p-6 text-sm text-white/80 backdrop-blur">
-            <h2 className="text-base font-semibold text-white">Como elegir lo que buscas</h2>
-            <ul className="space-y-3">
-              <li className="flex items-start gap-2">
-                <span className="mt-1 h-2 w-2 rounded-full bg-primary" />
-                Filtra por tipo para diferenciar productos, servicios y experiencias.
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="mt-1 h-2 w-2 rounded-full bg-secondary" />
-                Revisa la disponibilidad, ubicacion y formato (online/presencial).
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="mt-1 h-2 w-2 rounded-full bg-accent" />
-                Explora tags y descripciones para encontrar propuestas ideales para tu publico.
-              </li>
-            </ul>
+        </li>
+
+        <li className="flex gap-2.5">
+          <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-secondary text-[10px] font-bold text-secondary-content">2</span>
+          <div>
+            <p className="font-medium leading-tight">Crea una cuenta</p>
+            <p className="text-xs text-base-content/70">Nombre, correo y contraseña.</p>
           </div>
-        </div>
-      </header>
+        </li>
+
+        <li className="flex gap-2.5">
+          <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-accent-content">3</span>
+          <div>
+            <p className="font-medium leading-tight">Paga con Mercado Pago</p>
+            <p className="text-xs text-base-content/70">Crédito, débito o transferencia.</p>
+          </div>
+        </li>
+
+        <li className="flex gap-2.5">
+          <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-success text-[10px] font-bold text-success-content">4</span>
+          <div>
+            <p className="font-medium leading-tight">Confirmación</p>
+            <p className="text-xs text-base-content/70">Verás el detalle del pedido.</p>
+          </div>
+        </li>
+
+        <li className="flex gap-2.5 sm:col-span-2">
+          <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-info text-[10px] font-bold text-info-content">5</span>
+          <div>
+            <p className="font-medium leading-tight">Coordinación de entrega</p>
+            <p className="text-xs text-base-content/70">Despacho o retiro y seguimiento.</p>
+          </div>
+        </li>
+      </ol>
+
+      <p className="mt-3 text-[11px] text-base-content/60">
+        ¿Dudas? Escríbenos por <span className="underline decoration-base-content/30">Contacto</span>. Respondemos en 24–48 h hábiles.
+      </p>
+    </div>
+  </div>
+</header>
+
+
 
       <FilterBar
         filters={TYPE_FILTERS}

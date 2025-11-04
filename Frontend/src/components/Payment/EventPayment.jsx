@@ -19,7 +19,8 @@ export const EventPayment = ({ event, onPaymentSuccess, onPaymentError }) => {
 
   const payerInfo = {
     name: user?.username || "",
-    email: user?.email || ""
+    email: user?.email || "",
+    userId: user?._id || "",
   };
 
   const handlePaymentSuccess = (data) => {

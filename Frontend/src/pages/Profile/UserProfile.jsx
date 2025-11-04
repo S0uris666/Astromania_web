@@ -47,8 +47,9 @@ export function UserProfile() {
     () => ({
       name: currentUser?.username ?? "",
       email: currentUser?.email ?? "",
+      userId: currentUser?._id ?? "",
     }),
-    [currentUser?.username, currentUser?.email]
+    [currentUser?._id, currentUser?.username, currentUser?.email]
   );
 
   const handleLogout = async () => {

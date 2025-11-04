@@ -43,7 +43,7 @@ export function SuperUserProfile() {
   const payerInfo = {
     name: currentUser?.username ?? "",
     email: currentUser?.email ?? "",
-    
+    userId: currentUser?._id ?? "",
   };
 
   const handleLogout = async () => {
