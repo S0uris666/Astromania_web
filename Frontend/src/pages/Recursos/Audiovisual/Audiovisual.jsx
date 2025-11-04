@@ -21,7 +21,7 @@ const TYPE_OPTIONS = [
   { value: "documentales", label: "Documentales", icon: <Telescope className="w-4 h-4" /> },
   {
     value: "canales",
-    label: "Canales y archivos",
+    label: "Canales y videocast",
     icon: (
       <span className="inline-flex items-center gap-1">
         <Youtube className="w-4 h-4" />
@@ -29,7 +29,7 @@ const TYPE_OPTIONS = [
       </span>
     ),
   },
-  { value: "ficcion", label: "Ciencia ficción", icon: <Clapperboard className="w-4 h-4" /> },
+  { value: "ficcion", label: "Ficción", icon: <Clapperboard className="w-4 h-4" /> },
   { value: "series", label: "Series de TV", icon: <Tv className="w-4 h-4" /> },
   { value: "archivo imagenes", label: "Imagenes", icon: <Tv className="w-4 h-4" /> },
   { value: "corto", label: "Cortos", icon: <Tv className="w-4 h-4" /> }
@@ -57,7 +57,7 @@ export function Audiovisual() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-14">
         {/* Header (igual estilo) */}
         <header className="max-w-3xl mt-15">
-          <h1 className="text-3xl lg:text-4xl">Canales y videocast</h1>
+          <h1 className="text-3xl lg:text-4xl">Audiovisual</h1>
           <p className="mt-2 text-base text-base-content/80">
             Descubre documentales, series, canales de YouTube y archivos visuales para inspirar tus
             clases, talleres y momentos de divulgación.

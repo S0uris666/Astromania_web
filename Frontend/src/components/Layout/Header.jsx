@@ -8,7 +8,7 @@ const RESOURCE_LINKS = [
   {label: "Actividades", to:"/recursos/actividades"},
   { label: "Literatura astronomica", to: "/recursos/literatura" },
   { label: "Musica y podcast", to: "/recursos/musica" },
-  { label: "Canales y videocast", to: "/recursos/canales-videocast" },
+  { label: "Audiovisual", to: "/recursos/audiovisual" },
   { label: "Software y apps", to: "/recursos/sofware-y-apps" },
   { label: "Planetario interactivo", to: "/recursos/stellarium" }
   
@@ -211,7 +211,7 @@ export default function Header() {
               <li><Link to="/recursos/actividades">Actividades</Link></li>
               <li><Link to="/recursos/literatura">Literatura Astronómica</Link></li>
               <li><Link to="/recursos/musica">Música y Podcast</Link></li>
-              <li><Link to="/recursos/canales-videocast">Canales y videocast</Link></li>
+              <li><Link to="/recursos/audiovisual">Canales y videocast</Link></li>
               <li><Link to="/recursos/sofware-y-apps">Software y apps</Link></li>
               <li><Link to="/recursos/stellarium">Planetario interactivo</Link></li>
             </Drop>

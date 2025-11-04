@@ -73,7 +73,7 @@ export default function AppRouter() {
                   <Route path="/recursos/musica" element={<MusicaAstronomica />} />
 
                   {/* Peliculas */}
-                   <Route path="/recursos/canales-videocast" element={<Audiovisual />} />
+                   <Route path="/recursos/audiovisual" element={<Audiovisual />} />
                    <Route path ="/recursos/actividades" element = {<ActivitiesList />} />
                    <Route path="/recursos/actividades/:slug" element={<ActivitiesSingle />} />
 
