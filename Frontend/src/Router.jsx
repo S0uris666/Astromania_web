@@ -8,7 +8,7 @@ import { AboutUs } from "./pages/AboutUs/AboutUs.jsx";
 import { ServiceProductList } from "./pages/ServiceProduct/List/ServiceProductList.jsx";
 import { ServiceProductSingle } from "./pages/ServiceProduct/Single/ServiceProductSingle.jsx";
 import ActivitiesSingle from "./pages/Recursos/Actividades/Single/ActivitiesSingle.jsx";
-import { Comunidad } from "./pages/Comunidad/Comunidad.jsx";
+
 import { Contacto } from "./pages/Contacto/Contacto.jsx";
 import { ScrollToTop } from "./components/ScrollToTop.jsx";
 import { Login } from "./pages/Login/Login.jsx";
@@ -46,6 +46,7 @@ import { PaymentFailure } from "./pages/Payments/PaymentFailure.jsx";
 import { PaymentNotification } from "./pages/Payments/PaymentNotification.jsx";
 import OrganizerEvents from "./pages/Events/OrganizerEvents.jsx";
 import ActivitiesList from "./pages/Recursos/Actividades/List/ActivitiesList.jsx";
+import { AstromaniaResponde } from "./pages/Comunidad/astromaniaResponde.jsx";
 
 export default function AppRouter() {
   return (
@@ -78,7 +79,7 @@ export default function AppRouter() {
                    <Route path="/recursos/actividades/:slug" element={<ActivitiesSingle />} />
 
 
-                  <Route path="/comunidad" element={<Comunidad />} />
+                  <Route path="/comunidad/astromania-responde" element={<AstromaniaResponde />} />
                   <Route path="/comunidad/red_divulgadores" element={<PublicProfiles />} />
                   <Route path="/contacto" element={<Contacto />} />
                   
