@@ -1,4 +1,3 @@
-// PaymentRedirectButton.jsx
 import { useState } from "react";
 import { usePayment } from "../../context/payment/paymentContext";
 
