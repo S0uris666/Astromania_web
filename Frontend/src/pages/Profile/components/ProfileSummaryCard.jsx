@@ -19,6 +19,8 @@ const ORIENTATION_CONFIG = {
     verticalSeparator: "hidden",
     mediaPanel: "w-full bg-base-200/40",
     buttonShift: "mx-auto",
+    summaryClamp: "line-clamp-4",
+    mediaAspect: "aspect-[4/3]", // un poco más “banner” en tarjetas
   },
   horizontal: {
     layout: "flex flex-col md:flex-row",
@@ -31,6 +33,8 @@ const ORIENTATION_CONFIG = {
     verticalSeparator: "hidden md:block",
     mediaPanel: "w-full md:shrink-0 md:w-[16rem] xl:w-[18rem] bg-base-200/40",
     buttonShift: "mx-auto md:mx-0",
+    summaryClamp: "line-clamp-3",
+    mediaAspect: "aspect-square",
   },
   auto: {
     layout: "flex flex-col lg:flex-row",
@@ -43,6 +47,8 @@ const ORIENTATION_CONFIG = {
     verticalSeparator: "hidden lg:block",
     mediaPanel: "w-full lg:shrink-0 lg:w-[16rem] xl:w-[18rem] bg-base-200/40",
     buttonShift: "mx-auto sm:mx-0",
+    summaryClamp: "line-clamp-4",
+    mediaAspect: "aspect-[4/3]",
   },
 };
 
@@ -56,27 +62,38 @@ export const ProfileSummaryCard = ({
   if (!user) return null;
 
   const displayName = normalizeText(user.username) || "Tu nombre";
-  const profession = normalizeText(user.profesion) || "Profesion o rol";
+  const profession = normalizeText(user.profesion) || "Profesión o rol";
   const city = normalizeText(user.city);
 
-  // Email público > email de cuenta
+  // Correo: público > cuenta (único punto de contacto)
   const accountEmail = normalizeText(user.email);
   const publicEmail = normalizeText(user.publicEmail);
-  const contactEmail = publicEmail || accountEmail; // 
-  const contactLabel = publicEmail ? "Correo público" : "Correo";
+  const contactEmail = publicEmail || accountEmail;
 
+  // Descripción
   const descriptionText =
     normalizeText(user.description) ||
-    "Completa tu biografia para que la comunidad conozca tu trabajo.";
-  const summary =
-    descriptionText.length > 320 ? `${descriptionText.slice(0, 317)}...` : descriptionText;
+    "Completa tu biografía para que la comunidad conozca tu trabajo.";
 
+  // Especialidades y enlaces
   const specializationList = parseSpecializations(user.especializacion);
   const profileLinks = buildProfileLinks(user.links);
   const imageUrl = getPrimaryImageUrl(user.images);
 
+  // Layout
   const orientationKey = ORIENTATION_CONFIG[orientation] ? orientation : "auto";
   const layout = ORIENTATION_CONFIG[orientationKey];
+
+  // Derivados UX
+  const maxChips = 6;
+  const visibleChips = specializationList.slice(0, maxChips);
+  const hiddenCount =
+    specializationList.length > maxChips
+      ? specializationList.length - maxChips
+      : 0;
+
+  const maxLinks = 3;
+  const visibleLinks = profileLinks.slice(0, maxLinks);
 
   const copyToClipboard = async (text) => {
     try {
@@ -102,21 +119,21 @@ export const ProfileSummaryCard = ({
 
   return (
     <section
-      className={`rounded-2xl border border-base-200/70 bg-base-100 shadow-sm overflow-hidden ${className}`}
+      className={`rounded-2xl border border-base-200/70 bg-base-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow ${className}`}
       aria-label={`Perfil de ${displayName}`}
       {...rest}
     >
       <div className={layout.layout}>
         {/* Imagen */}
         <div className={layout.mediaPanel}>
-          <div className="p-6 flex items-center justify-center">
-            <div className="w-full max-w-[14rem] sm:max-w-[16rem] mx-auto">
-              <div className="relative aspect-square rounded-2xl ring-1 ring-base-300 bg-base-100 overflow-hidden">
+          <div className="p-5 sm:p-6 flex items-center justify-center">
+            <div className="w-full max-w-[16rem] mx-auto">
+              <div className={`relative ${layout.mediaAspect} rounded-xl ring-1 ring-base-300/70 bg-base-100 overflow-hidden`}>
                 {imageUrl ? (
                   <img
                     src={imageUrl}
                     alt={`Imagen de ${displayName}`}
-                    className="h-full w-full object-cover"
+                    className="h-full w-full object-cover transition-transform duration-300 will-change-transform hover:scale-[1.02]"
                     loading="lazy"
                   />
                 ) : (
@@ -127,9 +144,9 @@ export const ProfileSummaryCard = ({
               </div>
 
               {isPublished && (
-                <div className="mt-4 inline-flex items-center gap-1.5 text-xs text-base-content/60 w-full justify-center">
+                <div className="mt-3 inline-flex items-center gap-1.5 text-xs text-base-content/60 w-full justify-center">
                   <CheckCircle2 className="size-3.5" />
-                  Perfil activo en Comunidad Astromania
+                  Perfil activo en Comunidad Astromanía
                 </div>
               )}
             </div>
@@ -150,7 +167,7 @@ export const ProfileSummaryCard = ({
               <span className="truncate">{profession}</span>
               {city && (
                 <>
-                  <span aria-hidden className="opacity-50">|</span>
+                  <span aria-hidden className="opacity-50">•</span>
                   <span className="inline-flex items-center gap-1">
                     <MapPin className="size-3.5 opacity-70" />
                     <span className="truncate">{city}</span>
@@ -160,25 +177,31 @@ export const ProfileSummaryCard = ({
             </p>
           </header>
 
+          {/* Chips de especialización */}
           {specializationList.length > 0 && (
-            <div className={`mt-4 flex flex-wrap gap-2 ${layout.linksJustify}`}>
-              {specializationList.map((item, index) => (
+            <div className={`mt-3 flex flex-wrap gap-2 ${layout.linksJustify}`}>
+              {visibleChips.map((item, index) => (
                 <span
                   key={`${item}-${index}`}
-                  className="inline-flex items-center rounded-full border border-base-300 px-3 py-1.5 text-xs text-base-content/80 hover:border-primary/50 transition"
+                  className="inline-flex items-center rounded-full border border-base-300 px-3 py-1.5 text-xs text-base-content/80 hover:border-primary/60 hover:bg-primary/5 transition"
                   title={item}
                 >
                   {item}
                 </span>
               ))}
+              {hiddenCount > 0 && (
+                <span className="inline-flex items-center rounded-full border border-dashed border-base-300 px-3 py-1.5 text-xs text-base-content/60">
+                  +{hiddenCount}
+                </span>
+              )}
             </div>
           )}
 
-          {/* ÚNICO bloque de correo: público > cuenta */}
-          {contactEmail && (
+          {/* Contacto (público > cuenta) */}
+          {contactEmail ? (
             <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-lg border border-base-200 bg-base-100 px-3 py-2">
               <span className="text-sm text-center sm:text-left">
-                <span className="font-semibold">{contactLabel}:</span>{" "}
+                <span className="font-semibold">Correo: </span>
                 <a
                   href={`mailto:${contactEmail}`}
                   className="link link-hover link-secondary break-all"
@@ -192,12 +215,10 @@ export const ProfileSummaryCard = ({
                 className={`btn btn-ghost btn-xs tooltip ${layout.buttonShift}`}
                 data-tip="Copiar correo"
                 onClick={async (event) => {
-                  const element = event.currentTarget;
+                  const el = event.currentTarget;
                   const ok = await copyToClipboard(contactEmail);
-                  element.dataset.tip = ok ? "Copiado" : "No se pudo copiar";
-                  setTimeout(() => {
-                    element.dataset.tip = "Copiar correo";
-                  }, 1200);
+                  el.dataset.tip = ok ? "Copiado" : "No se pudo copiar";
+                  setTimeout(() => { el.dataset.tip = "Copiar correo"; }, 1200);
                 }}
                 aria-label="Copiar correo"
                 title="Copiar correo"
@@ -205,23 +226,27 @@ export const ProfileSummaryCard = ({
                 <Copy className="size-4" />
               </button>
             </div>
-          )}
-
-          {summary && (
-            <p className={`mt-4 text-sm leading-relaxed text-base-content/80 text-pretty max-w-2xl ${layout.summaryShift}`}>
-              {summary}
+          ) : (
+            <p className="mt-4 text-xs text-base-content/60 text-center lg:text-left italic">
+              Este perfil no tiene un correo disponible.
             </p>
           )}
 
-          {profileLinks.length > 0 && (
+          {/* Resumen (no expande la card) */}
+          <p className={`mt-4 text-sm leading-relaxed text-base-content/80 text-pretty max-w-2xl ${layout.summaryShift} ${layout.summaryClamp}`}>
+            {descriptionText}
+          </p>
+
+          {/* Enlaces (máx. 3 visibles) */}
+          {visibleLinks.length > 0 && (
             <nav className={`mt-5 flex flex-wrap gap-2 ${layout.linksJustify}`} aria-label="Enlaces de perfil">
-              {profileLinks.map((link, index) => (
+              {visibleLinks.map((link, index) => (
                 <a
                   key={`${link.url}-${index}`}
                   href={link.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-lg border border-base-300 px-3 py-1.5 text-sm text-base-content/80 hover:border-primary/50 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 transition"
+                  className="inline-flex items-center gap-2 rounded-lg border border-base-300 px-3 py-1.5 text-sm text-base-content/80 hover:border-primary/60 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 transition"
                   title={link.label || link.url}
                   aria-label={`Abrir ${link.label || link.url} en nueva pestaña`}
                 >
@@ -229,6 +254,11 @@ export const ProfileSummaryCard = ({
                   <span className="max-w-[22ch] truncate">{link.label || link.url}</span>
                 </a>
               ))}
+              {profileLinks.length > maxLinks && (
+                <span className="inline-flex items-center rounded-lg border border-dashed border-base-300 px-3 py-1.5 text-sm text-base-content/60">
+                  +{profileLinks.length - maxLinks} más
+                </span>
+              )}
             </nav>
           )}
         </div>

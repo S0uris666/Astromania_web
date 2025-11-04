@@ -36,11 +36,12 @@ const ProfilePreviewCard = ({
     "Usa el formulario para compartir tu experiencia e intereses como divulgador.";
   const condensedDescription =
     description.length > 260 ? `${description.slice(0, 257)}...` : description;
+  const showDescriptionFade = condensedDescription.length >= 220;
 
   const activeLinks = links.filter((link) => normalizeText(link.url));
 
   return (
-    <div className="card bg-base-200 shadow-md lg:sticky lg:top-24  ">
+    <div className="card w-full max-w-md bg-base-200 shadow-md lg:sticky lg:top-24">
       {previewImage ? (
         <figure className="aspect-[4/3] overflow-hidden bg-base-100">
           <img
@@ -93,7 +94,19 @@ const ProfilePreviewCard = ({
           </p>
         ) : null}
 
-        <p className="text-sm leading-relaxed">{condensedDescription}</p>
+        <div className="relative">
+          <p className="text-sm leading-relaxed text-pretty break-words max-h-36 min-h-[5.5rem] overflow-hidden pr-1 sm:pr-2">
+            {condensedDescription}
+          </p>
+          {showDescriptionFade ? (
+            <span className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-base-200 via-base-200/85 to-transparent" />
+          ) : null}
+        </div>
+        {showDescriptionFade ? (
+          <p className="text-xs text-base-content/60">
+            Esta vista previa recorta tu descripcion para mantener la tarjeta compacta.
+          </p>
+        ) : null}
 
         {activeLinks.length ? (
           <div className="space-y-1">

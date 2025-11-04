@@ -84,8 +84,9 @@ const FIELD_MAPPER = {
     return value ? value.toLowerCase() : value;
   },
   publicEmail: (v) => {
+    if (v === null) return "";
     const value = normText(v);
-    return value ? value.toLowerCase() : value;
+    return value ? value.toLowerCase() : "";
   },
 };
 
@@ -162,6 +163,15 @@ export const updateProfile = async ({
   updates.images = images;
 
   const sanitized = sanitizePayload(updates);
+
+  if (
+    Object.prototype.hasOwnProperty.call(body, "publicEmail") &&
+    (body.publicEmail === null ||
+      body.publicEmail === "" ||
+      (typeof body.publicEmail === "string" && body.publicEmail.trim() === ""))
+  ) {
+    sanitized.publicEmail = "";
+  }
 
   try {
     const updated = await User.findByIdAndUpdate(userId, sanitized, {

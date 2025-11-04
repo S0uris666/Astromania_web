@@ -5,7 +5,6 @@ import ProfileSummaryCard from "./components/ProfileSummaryCard.jsx";
 import { getPublishedUsers } from "../../api/auth.js";
 import { normalizeText, parseSpecializations } from "./profileUtils.js";
 
-
 const Pill = ({ children, className = "" }) => (
   <span className={`inline-flex items-center rounded-full border border-base-300 px-2.5 py-1 text-xs ${className}`}>
     {children}
@@ -205,19 +204,21 @@ export default function PublicProfiles() {
             <div className="alert alert-error">{error}</div>
           </div>
         ) : loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6">
+            // ⬇⬇⬇ EXACTAMENTE 3 columnas desde md en adelante (coincide con el grid real)
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-5 sm:gap-6">
               {Array(8).fill(0).map((_, i) => (
                 <CardSkeleton key={i} />
               ))}
             </div>
         ) : (
+          // ⬇⬇⬇ EXACTAMENTE 3 columnas en modo tarjetas
           <div className={`grid gap-5 sm:gap-6 ${
             view === "grid" 
-              ? "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4" 
+              ? "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3" 
               : "grid-cols-1"
           }`}>
             {filteredProfiles.map((profile, index) => {
-              const baseKey = profile?._id || profile?.slug || profile?.publicEmail || `p-${index}`;
+              const baseKey = profile?._id || profile?.slug || profile?.publicEmail || `p-${index}`; // corregido publicEmail
               const key = `${baseKey}-${view}`;
               const slug = (profile?.slug || "").trim();
               const hasEventsLink = slug.length > 0;
@@ -256,4 +257,3 @@ export default function PublicProfiles() {
     </section>
   );
 }
-

@@ -1,44 +1,61 @@
-﻿import { useMemo } from "react";
+import { useMemo } from "react";
 import { Mail, User, MapPin, Briefcase, Stars, Info } from "lucide-react";
 
 const ProfileForm = ({ values = {}, onFieldChange, errors = {} }) => {
-  const v = useMemo(() => ({
-    username: values.username || "",
-    email: values.email || "",
-    publicEmail: values.publicEmail || "",
-    status: values.status || "published",
-    profesion: values.profesion || "",
-    especializacion: values.especializacion || "",
-    city: values.city || "",
-    description: values.description || "",
-  }), [values]);
+  const v = useMemo(
+    () => ({
+      username: values.username || "",
+      email: values.email || "",
+      publicEmail: values.publicEmail || "",
+      status: values.status || "published",
+      profesion: values.profesion || "",
+      especializacion: values.especializacion || "",
+      city: values.city || "",
+      description: values.description || "",
+    }),
+    [values]
+  );
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+  const handleChange = (event) => {
+    const { name, value } = event.target;
     onFieldChange?.(name, value);
   };
 
   const descCount = v.description.length;
-  const descMax = 500;
+  const descMax = 1000;
+  const descMin = 10;
+  const pct = Math.min(100, Math.round((descCount / descMax) * 100));
+  const barClass =
+    pct < 70 ? "progress-primary" : pct < 90 ? "progress-warning" : "progress-error";
+  const descTooShort = descCount > 0 && descCount < descMin;
+  const progressClass = descTooShort ? "progress-error" : barClass;
+
+  const iconDefaults = { size: 18, strokeWidth: 1.6 };
+  const fieldIconClass =
+    "pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-base-content/60";
 
   return (
     <section className="card bg-base-100 border border-base-300/60 shadow-sm">
       <div className="card-body p-5 sm:p-6 lg:p-8">
         <header className="flex items-start gap-3">
-          <div className="rounded-xl bg-primary/10 p-2 text-primary"><Info className="size-5" /></div>
+          <div className="rounded-xl bg-primary/10 p-2 text-primary">
+            <Info size={20} strokeWidth={1.8} />
+          </div>
           <div>
-            <h2 className="card-title text-lg sm:text-xl">Información profesional</h2>
-            <p className="text-sm text-base-content/70">Completa tu perfil para que la comunidad pueda encontrarte y contactarte.</p>
+            <h2 className="card-title text-lg sm:text-xl">Informacion profesional</h2>
+            <p className="text-sm text-base-content/70">
+              Completa tu perfil para que la comunidad pueda encontrarte y contactarte.
+            </p>
           </div>
         </header>
 
-        {/* Grid responsive: 1 / 2 columnas */}
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
-          {/* Nombre */}
+        <div className="mt-6 grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2">
           <label className="form-control w-full">
-            <div className="label"><span className="label-text">Nombre</span></div>
+            <div className="label">
+              <span className="label-text">Nombre</span>
+            </div>
             <div className="relative">
-              <User className="size-4 absolute left-3 top-1/2 -translate-y-1/2 opacity-60" />
+              <User {...iconDefaults} className={fieldIconClass} aria-hidden="true" />
               <input
                 type="text"
                 name="username"
@@ -53,14 +70,19 @@ const ProfileForm = ({ values = {}, onFieldChange, errors = {} }) => {
                 aria-describedby={errors.username ? "err-username" : undefined}
               />
             </div>
-            {errors.username && <span id="err-username" className="label-text-alt text-error">{errors.username}</span>}
+            {errors.username ? (
+              <span id="err-username" className="label-text-alt text-error">
+                {errors.username}
+              </span>
+            ) : null}
           </label>
 
-          {/* Correo registrado (solo lectura) */}
           <label className="form-control w-full">
-            <div className="label"><span className="label-text">Correo registrado</span></div>
+            <div className="label">
+              <span className="label-text">Correo registrado</span>
+            </div>
             <div className="relative">
-              <Mail className="size-4 absolute left-3 top-1/2 -translate-y-1/2 opacity-60" />
+              <Mail {...iconDefaults} className={fieldIconClass} aria-hidden="true" />
               <input
                 type="email"
                 value={v.email}
@@ -68,24 +90,27 @@ const ProfileForm = ({ values = {}, onFieldChange, errors = {} }) => {
                 disabled
                 className="input input-bordered w-full pl-9 bg-base-300/30 cursor-not-allowed text-base-content/70"
                 placeholder="Correo con el que te registraste"
-                aria-readonly
+                aria-readonly="true"
               />
             </div>
-            <span className="label-text-alt text-xs text-base-content/60">Este correo es parte de tu cuenta y no se puede editar.</span>
+            <span className="label-text-alt text-xs text-base-content/60">
+              Este correo es parte de tu cuenta y no se puede editar.
+            </span>
           </label>
 
-          {/* Correo público */}
           <label className="form-control w-full md:col-span-2">
-            <div className="label"><span className="label-text">Correo público</span></div>
+            <div className="label">
+              <span className="label-text">Correo publico</span>
+            </div>
             <div className="relative">
-              <Mail className="size-4 absolute left-3 top-1/2 -translate-y-1/2 opacity-60" />
+              <Mail {...iconDefaults} className={fieldIconClass} aria-hidden="true" />
               <input
                 type="email"
                 name="publicEmail"
                 value={v.publicEmail}
                 onChange={handleChange}
                 className="input input-bordered w-full pl-9"
-                placeholder="Tu email de contacto público"
+                placeholder="Tu email de contacto publico"
                 autoComplete="email"
                 inputMode="email"
                 aria-invalid={!!errors.publicEmail}
@@ -93,14 +118,21 @@ const ProfileForm = ({ values = {}, onFieldChange, errors = {} }) => {
               />
             </div>
             <div className="label">
-              <span className="label-text-alt text-xs text-base-content/60">Se mostrará en tu tarjeta. Si lo dejas vacío, se usará tu correo de cuenta.</span>
-              {errors.publicEmail && <span id="err-publicEmail" className="label-text-alt text-error">{errors.publicEmail}</span>}
+              <span className="label-text-alt text-xs text-base-content/60">
+                Se mostrara en tu tarjeta. Si lo dejas vacio, se usara tu correo de cuenta.
+              </span>
+              {errors.publicEmail ? (
+                <span id="err-publicEmail" className="label-text-alt text-error">
+                  {errors.publicEmail}
+                </span>
+              ) : null}
             </div>
           </label>
 
-          {/* Visibilidad */}
           <label className="form-control w-full">
-            <div className="label"><span className="label-text">Visibilidad del perfil</span></div>
+            <div className="label">
+              <span className="label-text">Visibilidad del perfil</span>
+            </div>
             <select
               name="status"
               value={v.status}
@@ -113,75 +145,105 @@ const ProfileForm = ({ values = {}, onFieldChange, errors = {} }) => {
             </select>
           </label>
 
-          {/* Profesión */}
           <label className="form-control w-full">
-            <div className="label"><span className="label-text">Profesión</span></div>
+            <div className="label">
+              <span className="label-text">Profesion</span>
+            </div>
             <div className="relative">
-              <Briefcase className="size-4 absolute left-3 top-1/2 -translate-y-1/2 opacity-60" />
+              <Briefcase {...iconDefaults} className={fieldIconClass} aria-hidden="true" />
               <input
                 type="text"
                 name="profesion"
                 value={v.profesion}
                 onChange={handleChange}
                 className="input input-bordered w-full pl-9"
-                placeholder="Astrofísico/a, divulgador/a, educador/a..."
+                placeholder="Astrofisico/a, divulgador/a, educador/a..."
                 maxLength={80}
               />
             </div>
           </label>
 
-          {/* Especialización */}
           <label className="form-control w-full">
-            <div className="label"><span className="label-text">Especialización</span></div>
+            <div className="label">
+              <span className="label-text">Especializacion</span>
+            </div>
             <div className="relative">
-              <Stars className="size-4 absolute left-3 top-1/2 -translate-y-1/2 opacity-60" />
+              <Stars {...iconDefaults} className={fieldIconClass} aria-hidden="true" />
               <input
                 type="text"
                 name="especializacion"
                 value={v.especializacion}
                 onChange={handleChange}
                 className="input input-bordered w-full pl-9"
-                placeholder="Cosmología, Observación, Educación..."
+                placeholder="Cosmologia, Observacion, Educacion..."
                 maxLength={120}
               />
             </div>
-            <span className="label-text-alt text-xs text-base-content/60">Puedes separar varias con comas.</span>
+            <span className="label-text-alt text-xs text-base-content/60">
+              Puedes separar varias con comas.
+            </span>
           </label>
 
-          {/* Ciudad */}
           <label className="form-control w-full">
-            <div className="label"><span className="label-text">Ciudad</span></div>
+            <div className="label">
+              <span className="label-text">Ciudad</span>
+            </div>
             <div className="relative">
-              <MapPin className="size-4 absolute left-3 top-1/2 -translate-y-1/2 opacity-60" />
+              <MapPin {...iconDefaults} className={fieldIconClass} aria-hidden="true" />
               <input
                 type="text"
                 name="city"
                 value={v.city}
                 onChange={handleChange}
                 className="input input-bordered w-full pl-9"
-                placeholder="Valparaíso, Santiago, Concepción..."
+                placeholder="Valparaiso, Santiago, Concepcion..."
                 maxLength={80}
               />
             </div>
           </label>
 
-          {/* Descripción (ocupa dos columnas en md+) */}
           <label className="form-control w-full md:col-span-2">
-            <div className="label"><span className="label-text">Descripción</span></div>
-            <textarea
-              name="description"
-              value={v.description}
-              onChange={handleChange}
-              className="textarea textarea-bordered min-h-[140px]"
-              placeholder="Comparte tu trayectoria y enfoque como divulgador/a."
-              maxLength={descMax}
-              aria-describedby="desc-help"
-            />
-            <div className="label">
-              <span id="desc-help" className="label-text-alt text-xs text-base-content/60">Entre 10 y {descMax} caracteres es una extensión cómoda para lectura rápida.</span>
-              <span className={`label-text-alt ${descCount > descMax ? "text-error" : "text-base-content/60"}`}>
+            <div className="label justify-between">
+              <span className="label-text">Descripcion</span>
+              <span
+                className={`label-text-alt ${
+                  descCount > descMax ? "text-error" : "text-base-content/60"
+                }`}
+              >
                 {descCount}/{descMax}
               </span>
+            </div>
+            <div className="relative">
+              <textarea
+                name="description"
+                value={v.description}
+                onChange={handleChange}
+                className="textarea textarea-bordered w-full rounded-xl shadow-inner leading-relaxed placeholder:text-base-content/50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 h-36 max-h-36 overflow-y-auto resize-none"
+                placeholder="Comparte tu trayectoria, enfoques y lineas de trabajo en divulgacion astronomica."
+                rows={6}
+                maxLength={descMax}
+                minLength={descMin}
+                aria-invalid={descTooShort}
+                aria-describedby="desc-help"
+              />
+            </div>
+            <div className="mt-2 flex items-center justify-between gap-3">
+              <span
+                id="desc-help"
+                className={`label-text-alt text-xs ${
+                  descTooShort ? "text-error" : "text-base-content/60"
+                }`}
+              >
+                {descTooShort
+                  ? `Necesitas al menos ${descMin} caracteres para publicar.`
+                  : `Puedes escribir hasta ${descMax} caracteres.`}
+              </span>
+              <progress
+                className={`progress w-40 ${progressClass}`}
+                value={pct}
+                max="100"
+                aria-label="Progreso de caracteres"
+              />
             </div>
           </label>
         </div>
