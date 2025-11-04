@@ -223,6 +223,27 @@ export const sendConfirmationEmailIfNeeded = async (payment) => {
       "";
     const payerEmail = userEmail || metadataEmail || additionalInfoEmail || payerRecordEmail || "";
 
+    if (!payerEmail) {
+      console.warn("[payments] No se pudo resolver email del comprador", {
+        paymentId: payment.id,
+        userId,
+        metadataEmail,
+        additionalInfoEmail,
+        payerRecordEmail,
+        metadata: metadata ? Object.keys(metadata) : null,
+      });
+    } else {
+      console.log("[payments] Email del comprador resuelto", {
+        paymentId: payment.id,
+        resolvedEmail: payerEmail,
+        userId,
+        userEmail,
+        metadataEmail,
+        additionalInfoEmail,
+        payerRecordEmail,
+      });
+    }
+
     const teamEmail = process.env.SMTP_JP;
     if (!payerEmail && !teamEmail) return;
 

@@ -1,8 +1,9 @@
 import { PaymentButton } from "./PaymentButton";
-import { useUser } from "../../context/user/UserContext";
+import { useContext } from "react";
+import { UserContext } from "../../context/user/UserContext";
 
 export const EventPayment = ({ event, onPaymentSuccess, onPaymentError }) => {
-  const { user } = useUser();
+  const { currentUser } = useContext(UserContext) || {};
 
   if (!event || event.price === 0) {
     return null; // No mostrar si el evento es gratuito
@@ -18,9 +19,9 @@ export const EventPayment = ({ event, onPaymentSuccess, onPaymentError }) => {
   ];
 
   const payerInfo = {
-    name: user?.username || "",
-    email: user?.email || "",
-    userId: user?._id || "",
+    name: currentUser?.username || "",
+    email: currentUser?.email || "",
+    userId: currentUser?._id || "",
   };
 
   const handlePaymentSuccess = (data) => {
@@ -54,10 +55,10 @@ export const EventPayment = ({ event, onPaymentSuccess, onPaymentError }) => {
         payerInfo={payerInfo}
         onSuccess={handlePaymentSuccess}
         onError={handlePaymentError}
-        disabled={!user}
+        disabled={!currentUser}
       />
       
-      {!user && (
+      {!currentUser && (
         <p className="text-sm text-base-content/60 mt-2 text-center">
           Debes <a href="/login" className="link link-primary">iniciar sesión</a> para inscribirte
         </p>

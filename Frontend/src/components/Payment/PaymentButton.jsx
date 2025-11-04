@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import { usePayment } from "../../context/payment/paymentContext";
+import { UserContext } from "../../context/user/UserContext";
 
 /**
  * Botón de pago con redirección inmediata a Mercado Pago (Web Checkout).
@@ -16,6 +17,16 @@ export function PaymentButton({
   onError,
 }) {
   const { createPreference, loading: ctxLoading, error: ctxError } = usePayment();
+  const userCtx = useContext(UserContext);
+  const currentUser = userCtx?.currentUser;
+
+  const resolvedPayer = useMemo(() => {
+    const name = (payerInfo?.name || currentUser?.username || "").trim();
+    const email = (payerInfo?.email || currentUser?.email || "").trim();
+    const userId = payerInfo?.userId || currentUser?._id || "";
+
+    return { name, email, userId };
+  }, [payerInfo, currentUser?._id, currentUser?.email, currentUser?.username]);
   const [localLoading, setLocalLoading] = useState(false);
   const loading = ctxLoading || localLoading;
 
@@ -37,9 +48,9 @@ export function PaymentButton({
 
       const metadata = {
         orderItems: JSON.stringify(normalizedItems),
-        buyerEmail: payerInfo.email || "",
-        buyerName: payerInfo.name || "",
-        userId: payerInfo.userId || "",
+        buyerEmail: resolvedPayer.email,
+        buyerName: resolvedPayer.name,
+        userId: resolvedPayer.userId,
         totalAmount: String(
           normalizedItems.reduce(
             (total, current) => total + (current.unit_price || 0) * (current.quantity || 0),
@@ -52,8 +63,8 @@ export function PaymentButton({
 
       const preference = await createPreference(items, {
         ...backUrls,
-        payerName: payerInfo.name,
-        payerEmail: payerInfo.email,
+        payerName: resolvedPayer.name,
+        payerEmail: resolvedPayer.email,
         metadata,
       });
 
