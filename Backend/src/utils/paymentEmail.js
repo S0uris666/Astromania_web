@@ -9,11 +9,56 @@ const formatCurrency = (value, currency = "CLP") =>
     currency,
   }).format(Number(value || 0));
 
-const parseItemsFromMetadata = (payment) => {
-  const metadataItems = payment?.metadata?.orderItems;
+const unwrapSerializedString = (value) => {
+  if (value == null) return "";
+  if (typeof value === "object") {
+    if (value.$oid) {
+      return String(value.$oid).trim();
+    }
+    return "";
+  }
+  if (typeof value !== "string") return "";
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  if (
+    (trimmed.startsWith("{") && trimmed.endsWith("}")) ||
+    (trimmed.startsWith("[") && trimmed.endsWith("]"))
+  ) {
+    return trimmed;
+  }
+  if (trimmed.startsWith('"') && trimmed.endsWith('"')) {
+    try {
+      return JSON.parse(trimmed);
+    } catch {
+      return trimmed.slice(1, -1).trim();
+    }
+  }
+  return trimmed;
+};
+
+const extractMetadata = (payment) => {
+  const raw = payment?.metadata;
+  if (!raw) return {};
+  if (typeof raw === "string") {
+    try {
+      return JSON.parse(raw);
+    } catch (error) {
+      console.error("Error parsing payment metadata:", error);
+      return {};
+    }
+  }
+  return raw;
+};
+
+const parseItemsFromMetadata = (metadata) => {
+  const metadataItems = metadata?.orderItems;
   if (!metadataItems) return [];
   try {
-    const parsed = JSON.parse(metadataItems);
+    let rawItems = typeof metadataItems === "string" ? metadataItems : JSON.stringify(metadataItems);
+    let parsed = JSON.parse(rawItems);
+    if (typeof parsed === "string") {
+      parsed = JSON.parse(parsed);
+    }
     if (!Array.isArray(parsed)) return [];
     return parsed.map((item) => ({
       title: item.title,
@@ -148,7 +193,9 @@ export const sendConfirmationEmailIfNeeded = async (payment) => {
     if (processedPayments.has(payment.id)) return;
     if (payment.status !== "approved") return;
 
-    const userId = payment?.metadata?.userId;
+    const metadata = extractMetadata(payment);
+    const userIdRaw = metadata?.userId ?? payment?.metadata?.userId;
+    const userId = unwrapSerializedString(userIdRaw) || (typeof userIdRaw === "string" ? userIdRaw : "");
     let userEmail = "";
 
     if (userId) {
@@ -162,20 +209,25 @@ export const sendConfirmationEmailIfNeeded = async (payment) => {
       }
     }
 
-    const metadataEmail = payment?.metadata?.buyerEmail
-      ? String(payment.metadata.buyerEmail).trim()
-      : "";
-    const payerRecordEmail =
+    const metadataEmailRaw = metadata?.buyerEmail ?? payment?.metadata?.buyerEmail;
+    const metadataEmail = unwrapSerializedString(metadataEmailRaw) || (typeof metadataEmailRaw === "string" ? metadataEmailRaw.trim() : "");
+    const additionalInfoEmail =
+      unwrapSerializedString(payment?.additional_info?.payer?.email) ||
+      (typeof payment?.additional_info?.payer?.email === "string"
+        ? payment.additional_info.payer.email.trim()
+        : "");
+    const payerRecordEmail = unwrapSerializedString(payment?.payer?.email) ||
+      unwrapSerializedString(payment?.payer?.payer_email) ||
       payment?.payer?.email ||
       payment?.payer?.payer_email ||
       "";
-    const payerEmail = userEmail || metadataEmail || payerRecordEmail || "";
+    const payerEmail = userEmail || metadataEmail || additionalInfoEmail || payerRecordEmail || "";
 
     const teamEmail = process.env.SMTP_JP;
     if (!payerEmail && !teamEmail) return;
 
     const currencyId = payment?.currency_id || "CLP";
-    const orderItems = parseItemsFromMetadata(payment);
+    const orderItems = parseItemsFromMetadata(metadata);
     const itemsHtml = orderItems.length
       ? orderItems
           .map(
@@ -195,8 +247,9 @@ export const sendConfirmationEmailIfNeeded = async (payment) => {
         0,
       );
 
+    const buyerNameRaw = metadata?.buyerName ?? payment?.metadata?.buyerName;
     const buyerName =
-      payment?.metadata?.buyerName ||
+      unwrapSerializedString(buyerNameRaw) ||
       payment?.payer?.name ||
       "";
 
