@@ -1,4 +1,5 @@
 import { ExternalLink, MapPin, Copy, CheckCircle2 } from "lucide-react";
+import { ExpandableText } from "../../../components/Common/ExpandableText.jsx";
 import {
   normalizeText,
   parseSpecializations,
@@ -19,7 +20,7 @@ const ORIENTATION_CONFIG = {
     verticalSeparator: "hidden",
     mediaPanel: "w-full bg-base-200/40",
     buttonShift: "mx-auto",
-    summaryClamp: "line-clamp-4",
+    summaryLines: 4,
     mediaAspect: "aspect-[4/3]", // un poco más “banner” en tarjetas
   },
   horizontal: {
@@ -33,7 +34,7 @@ const ORIENTATION_CONFIG = {
     verticalSeparator: "hidden md:block",
     mediaPanel: "w-full md:shrink-0 md:w-[16rem] xl:w-[18rem] bg-base-200/40",
     buttonShift: "mx-auto md:mx-0",
-    summaryClamp: "line-clamp-3",
+    summaryLines: 3,
     mediaAspect: "aspect-square",
   },
   auto: {
@@ -47,7 +48,7 @@ const ORIENTATION_CONFIG = {
     verticalSeparator: "hidden lg:block",
     mediaPanel: "w-full lg:shrink-0 lg:w-[16rem] xl:w-[18rem] bg-base-200/40",
     buttonShift: "mx-auto sm:mx-0",
-    summaryClamp: "line-clamp-4",
+    summaryLines: 4,
     mediaAspect: "aspect-[4/3]",
   },
 };
@@ -233,9 +234,11 @@ export const ProfileSummaryCard = ({
           )}
 
           {/* Resumen (no expande la card) */}
-          <p className={`mt-4 text-sm leading-relaxed text-base-content/80 text-pretty max-w-2xl ${layout.summaryShift} ${layout.summaryClamp}`}>
-            {descriptionText}
-          </p>
+          <ExpandableText
+            text={descriptionText}
+            collapsedLines={layout.summaryLines ?? 3}
+            className={`mt-4 text-sm leading-relaxed text-base-content/80 text-pretty max-w-2xl ${layout.summaryShift}`}
+          />
 
           {/* Enlaces (máx. 3 visibles) */}
           {visibleLinks.length > 0 && (
