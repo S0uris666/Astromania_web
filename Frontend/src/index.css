@@ -42,16 +42,13 @@
 }
 
 /* Textos */
-/* Azul brillante */
+
 .text-galaxy {
   color: #9333ea;
 }
 .hover-text-galaxy:hover {
   color: #ba6bfe;
-} /* Morado galaxia */
-/* Rojo meteoro */
-
-/* Bordes y sombras */
+} 
 
 .border-galaxy {
   border-color: #9333ea;
@@ -106,4 +103,10 @@
   background-color: #1f2937; /* otro gris más sobrio */
   color: white;
   transform: rotateY(180deg);
+}
+.hero-community-gradient {
+  background-image:
+    radial-gradient(circle at top, rgba(37, 99, 235, 0.18), transparent 55%),
+    radial-gradient(circle at bottom, rgba(147, 51, 234, 0.12), transparent 45%),
+    linear-gradient(180deg, #080B15, #111827 60%, #0B1120);
 }

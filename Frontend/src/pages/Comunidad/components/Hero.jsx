@@ -1,11 +1,11 @@
 import { Link } from "react-router-dom";
 
 export function ComunidadHero() {
-  
+ 
 
   return (
     <section className="relative overflow-hidden py-20 sm:py-24">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(37,99,235,0.18),transparent_55%),_radial-gradient(circle_at_bottom,_rgba(147,51,234,0.12),transparent_45%),_linear-gradient(180deg,_#080B15,_#111827_60%,_#0B1120)]" />
+      <div className="absolute inset-0 hero-community-gradient" />
       <div className="absolute inset-0 blur-[120px] opacity-40">
         <div className="mx-auto h-full max-w-4xl bg-gradient-to-br from-primary/40 via-indigo-500/40 to-fuchsia-500/30" />
       </div>
@@ -34,7 +34,6 @@ export function ComunidadHero() {
             </Link>
           </div>
         </div>
-
       </div>
     </section>
   );

@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 import { respuestasComunidad } from "../../data/ComunidadRespuestas.js";
 import { ComunidadHero } from "./components/Hero.jsx";
 import { CategoryFilters } from "./components/CategoryFilters.jsx";
