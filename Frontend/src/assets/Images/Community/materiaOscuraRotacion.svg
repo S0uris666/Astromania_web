@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 280" fill="none">
+  <rect width="400" height="280" rx="28" fill="#0B1120" />
+  <g opacity="0.45" filter="url(#a)">
+    <circle cx="120" cy="80" r="90" fill="#9333EA" />
+  </g>
+  <g opacity="0.45" filter="url(#b)">
+    <circle cx="300" cy="200" r="110" fill="#38BDF8" />
+  </g>
+  <path
+    d="M96 140c0-56 45-101 101-101s101 45 101 101-45 101-101 101S96 196 96 140z"
+    stroke="#F8FAFC"
+    stroke-width="6"
+    stroke-opacity="0.15"
+  />
+  <path
+    d="M132 140c0-35 30-64 65-64s65 29 65 64-30 64-65 64-65-29-65-64z"
+    stroke="#F8FAFC"
+    stroke-width="4"
+    stroke-opacity="0.25"
+  />
+  <circle cx="232" cy="140" r="18" fill="#FACC15" fill-opacity="0.9" />
+  <circle cx="176" cy="128" r="6" fill="#F8FAFC" fill-opacity="0.8" />
+  <circle cx="214" cy="92" r="4" fill="#F8FAFC" fill-opacity="0.6" />
+  <circle cx="264" cy="174" r="5" fill="#F8FAFC" fill-opacity="0.6" />
+  <text
+    x="40"
+    y="240"
+    font-size="22"
+    font-family="Inter, Arial, sans-serif"
+    fill="#CBD5F5"
+    opacity="0.8"
+  >
+    Halo de materia oscura
+  </text>
+  <defs>
+    <filter id="a" x="-30" y="-70" width="300" height="300" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse">
+      <feGaussianBlur stdDeviation="35" />
+    </filter>
+    <filter id="b" x="140" y="40" width="320" height="320" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse">
+      <feGaussianBlur stdDeviation="45" />
+    </filter>
+  </defs>
+</svg>

@@ -2,6 +2,8 @@
 @plugin "daisyui" {
   themes: "night";
 }
+@import "./pages/Comunidad/styles/variables.css";
+@import "./pages/Comunidad/styles/globals.css";
 
 
 /* Fondos principales */
