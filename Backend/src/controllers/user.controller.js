@@ -31,12 +31,25 @@ export const createUser = async (req, res) => {
         .json({ error: "La contraseña debe tener al menos 6 caracteres" });
     }
 
-    // Usuario existente
-    const foundUser = await User.findOne({ email: email.toLowerCase().trim() });
+    const normalizedEmail = email.toLowerCase().trim();
+    const normalizedUsername = username.trim();
+
+    // Usuario existente por correo
+    const foundUser = await User.findOne({ email: normalizedEmail });
     if (foundUser) {
       return res
         .status(409)
         .json({ error: "El usuario ya existe con ese correo" });
+    }
+
+    // Usuario existente por nombre de usuario
+    const userWithSameUsername = await User.findOne({
+      username: normalizedUsername,
+    });
+    if (userWithSameUsername) {
+      return res
+        .status(409)
+        .json({ error: "El nombre de usuario ya esta en uso" });
     }
 
     // Hash
@@ -44,8 +57,8 @@ export const createUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const newUser = await User.create({
-      username: username.trim(),
-      email: email.toLowerCase().trim(),
+      username: normalizedUsername,
+      email: normalizedEmail,
       role: "user",
       password: hashedPassword,
     });
@@ -58,8 +71,13 @@ export const createUser = async (req, res) => {
   } catch (err) {
     console.error("Error creating user:", err);
 
-    if (err?.code === 11000 && err?.keyPattern?.email) {
-      return res.status(409).json({ error: "El correo ya está registrado" });
+    if (err?.code === 11000) {
+      if (err?.keyPattern?.email) {
+        return res.status(409).json({ error: "El correo ya está registrado" });
+      }
+      if (err?.keyPattern?.username) {
+        return res.status(409).json({ error: "El nombre de usuario ya está en uso" });
+      }
     }
 
     return res.status(500).json({ error: "Error del servidor" });
