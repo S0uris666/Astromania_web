@@ -15,7 +15,7 @@ export const FilterBar = ({ filters, active, onChange }) => {
           key={option.value}
           type="button"
           className={`btn btn-sm ${
-            active === option.value ? "btn-primary" : "btn-outline"
+            active === option.value ? "btn-secondary" : "btn-outline"
           }`}
           onClick={() => onChange(option.value)}
         >

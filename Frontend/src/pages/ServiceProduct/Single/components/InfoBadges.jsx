@@ -24,28 +24,45 @@ export const InfoBadges = ({
   location,
   isActive,
 }) => (
-  <div className="flex items-center gap-2 flex-wrap text-sm">
-    <span className="badge badge-secondary/90">{typeLabel}</span>
+  <div className="flex flex-wrap gap-2 text-xs sm:text-sm">
+    <span className="inline-flex items-center rounded-full border border-primary/40 bg-primary/10 px-3 py-1 font-semibold text-primary">
+      {typeLabel}
+    </span>
 
     {isProduct && (
-      <span className={`badge badge-sm ${hasStock ? "badge-success/90" : "badge-error/90"}`}>
+      <span
+        className={`inline-flex items-center rounded-full px-3 py-1 font-medium ${
+          hasStock
+            ? "border border-success/40 bg-success/10 text-success"
+            : "border border-error/40 bg-error/10 text-error"
+        }`}
+      >
         {hasStock ? `Stock: ${stock}` : "Sin stock"}
       </span>
     )}
 
     {isService && durationMinutes ? (
-      <span className="badge badge-ghost badge-sm">Duracion: {durationMinutes} min</span>
+      <span className="inline-flex items-center rounded-full border border-base-300/70 bg-base-200/60 px-3 py-1 text-base-content/70">
+        Duracion: {durationMinutes} min
+      </span>
     ) : null}
 
     {isService && capacity ? (
-      <span className="badge badge-ghost badge-sm">Capacidad: {capacity} personas</span>
+      <span className="inline-flex items-center rounded-full border border-base-300/70 bg-base-200/60 px-3 py-1 text-base-content/70">
+        Capacidad: {capacity} personas
+      </span>
     ) : null}
 
     {isActivity && location ? (
-      <span className="badge badge-ghost badge-sm">{location}</span>
+      <span className="inline-flex items-center rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-accent">
+        {location}
+      </span>
     ) : null}
 
-    {isActive === false && <span className="badge badge-outline">No disponible</span>}
+    {isActive === false && (
+      <span className="inline-flex items-center rounded-full border border-base-300/70 bg-base-200/80 px-3 py-1 text-base-content/70">
+        No disponible
+      </span>
+    )}
   </div>
 );
-
