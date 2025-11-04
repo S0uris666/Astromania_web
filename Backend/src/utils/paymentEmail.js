@@ -149,22 +149,27 @@ export const sendConfirmationEmailIfNeeded = async (payment) => {
     if (payment.status !== "approved") return;
 
     const userId = payment?.metadata?.userId;
-    let payerEmail =
-      payment?.metadata?.buyerEmail ||
-      payment?.payer?.email ||
-      payment?.payer?.payer_email ||
-      "";
+    let userEmail = "";
 
-    if (!payerEmail && userId) {
+    if (userId) {
       try {
         const user = await User.findById(userId).select("email");
         if (user?.email) {
-          payerEmail = user.email;
+          userEmail = String(user.email).trim();
         }
       } catch (dbError) {
         console.error("Error fetching user email:", dbError);
       }
     }
+
+    const metadataEmail = payment?.metadata?.buyerEmail
+      ? String(payment.metadata.buyerEmail).trim()
+      : "";
+    const payerRecordEmail =
+      payment?.payer?.email ||
+      payment?.payer?.payer_email ||
+      "";
+    const payerEmail = userEmail || metadataEmail || payerRecordEmail || "";
 
     const teamEmail = process.env.SMTP_JP;
     if (!payerEmail && !teamEmail) return;
