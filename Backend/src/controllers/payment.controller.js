@@ -1,6 +1,44 @@
 import { createPaymentPreference, getPaymentById } from "../services/payment.service.js";
 import { sendConfirmationEmailIfNeeded } from "../utils/paymentEmail.js";
 
+const extractWebhookPaymentId = (req) => {
+  if (!req) return "";
+  const body = req.body || {};
+  const query = req.query || {};
+
+  const candidate =
+    body?.data?.id ??
+    body?.data?.paymentId ??
+    body?.payment_id ??
+    body?.paymentId ??
+    query?.payment_id ??
+    query?.paymentId ??
+    query["data.id"] ??
+    query.id ??
+    body?.id ??
+    null;
+
+  return candidate ? String(candidate).trim() : "";
+};
+
+const isPaymentTopic = (req) => {
+  const topic =
+    req?.body?.topic ||
+    req?.body?.type ||
+    req?.query?.topic ||
+    req?.query?.type ||
+    "";
+  const action = req?.body?.action || "";
+
+  const topicLower = typeof topic === "string" ? topic.toLowerCase() : "";
+  const actionLower = typeof action === "string" ? action.toLowerCase() : "";
+
+  if (!topicLower && !actionLower) return true; // Legacy notifications without topic/action
+  if (topicLower.includes("payment")) return true;
+  if (actionLower.includes("payment")) return true;
+  return false;
+};
+
 // Crea preferencia
 export const createPreference = async (req, res) => {
   try {
@@ -67,16 +105,18 @@ export const pendingReturn = (req, res) => {
 
 export const webhook = async (req, res) => {
   try {
-    const { data, id } = req.body;
+    if (!isPaymentTopic(req)) {
+      return res.status(200).send("OK (topic no es de pago)");
+    }
 
-    const paymentId =
-      (data && (data.id || data.paymentId)) ||
-      req.query["data.id"] ||
-      req.query.id ||
-      id;
-
+    const paymentId = extractWebhookPaymentId(req);
     if (!paymentId) {
       return res.status(200).send("OK (sin paymentId)");
+    }
+
+    if (!/^\d+$/.test(paymentId)) {
+      console.warn(`Webhook ignorado: paymentId no numerico (${paymentId})`);
+      return res.status(200).send("OK (paymentId no valido)");
     }
 
     const payment = await getPaymentById(paymentId);
