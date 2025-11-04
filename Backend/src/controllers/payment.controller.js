@@ -68,7 +68,7 @@ const sendConfirmationEmailIfNeeded = async (payment) => {
               )}</li>`,
           )
           .join("")
-      : "<li>Tu compra se registró correctamente.</li>";
+      : "<li>Tu compra se registrï¿½ correctamente.</li>";
 
     const totalAmount =
       payment?.transaction_amount ??
@@ -84,20 +84,20 @@ const sendConfirmationEmailIfNeeded = async (payment) => {
 
     const html = `
       <div style="font-family: Arial, Helvetica, sans-serif; font-size: 14px; color: #111827;">
-        <h2 style="color: #2563eb;">¡Gracias por tu compra${buyerName ? `, ${buyerName}` : ""}!</h2>
-        <p>Hemos recibido tu pago correctamente. Aquí tienes un resumen:</p>
+        <h2 style="color: #9c25ebff;">Gracias por tu compra${buyerName ? `, ${buyerName}` : ""}!</h2>
+        <p>Hemos recibido tu pago correctamente. AquÃ­ tienes un resumen:</p>
         <ul>
           ${itemsHtml}
         </ul>
         <p><strong>Total pagado:</strong> ${formatCurrency(totalAmount, currencyId)}</p>
-        <p style="margin-top: 16px;">Si necesitas asistencia, escríbenos a contacto@astromania.cl.</p>
-        <p style="margin-top: 24px;">Equipo Astromanía</p>
+        <p style="margin-top: 16px;">Si necesitas asistencia, escrÃ­benos </p>
+        <p style="margin-top: 24px;">Equipo AstromanÃ­a</p>
       </div>
     `;
 
     await sendPurchaseConfirmationMail({
       to: payerEmail || teamEmail,
-      subject: "Confirmación de compra | Astromanía",
+      subject: "Confirmacion de compra | AstromanÃ­a",
       html,
       bcc: payerEmail && teamEmail && payerEmail !== teamEmail ? teamEmail : undefined,
     });
