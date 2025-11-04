@@ -1,5 +1,6 @@
 import { createPaymentPreference, getPaymentById } from "../services/payment.service.js";
 import { sendConfirmationEmailIfNeeded } from "../utils/paymentEmail.js";
+import User from "../models/User.model.js";
 
 const extractWebhookPaymentId = (req) => {
   if (!req) return "";
@@ -42,13 +43,62 @@ const isPaymentTopic = (req) => {
 // Crea preferencia
 export const createPreference = async (req, res) => {
   try {
-    const body = req.body;
+    const body = req.body || {};
+    const metadata = { ...(body.metadata || {}) };
+
+    const requesterId = req.user?.id || req.user?._id || null;
+    let payerEmail =
+      metadata.buyerEmail ||
+      body?.payer?.email ||
+      "";
+    let payerName =
+      metadata.buyerName ||
+      body?.payer?.name ||
+      "";
+
+    if (requesterId) {
+      metadata.userId = metadata.userId || String(requesterId);
+
+      if (!payerEmail || !payerName) {
+        try {
+          const userDoc = await User.findById(requesterId).select("email username name");
+          if (userDoc) {
+            if (!payerEmail && userDoc.email) {
+              payerEmail = String(userDoc.email).trim();
+              metadata.buyerEmail = payerEmail;
+            }
+
+            if (!payerName) {
+              payerName = String(userDoc.username || userDoc.name || "").trim();
+              if (payerName) {
+                metadata.buyerName = payerName;
+              }
+            }
+          }
+        } catch (dbError) {
+          console.error("createPreference: error fetching user info", dbError);
+        }
+      }
+    }
+
+    if (!metadata.buyerEmail && payerEmail) {
+      metadata.buyerEmail = payerEmail;
+    }
+    if (!metadata.buyerName && payerName) {
+      metadata.buyerName = payerName;
+    }
 
     const preference = await createPaymentPreference({
       ...body,
+      payer: {
+        ...body.payer,
+        email: payerEmail,
+        name: payerName,
+      },
+      metadata,
       external_reference:
         body.external_reference ??
-        `${body?.metadata?.eventId || "event"}-${body?.metadata?.userId || "user"}-${Date.now()}`,
+        `${body?.metadata?.eventId || "event"}-${metadata.userId || requesterId || "user"}-${Date.now()}`,
     });
 
     res.json(preference);

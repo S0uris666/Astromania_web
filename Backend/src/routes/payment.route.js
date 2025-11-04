@@ -7,11 +7,12 @@ import {
   successReturn,
   webhook,
 } from "../controllers/payment.controller.js";
+import auth from "../middlewares/auth.js";
 
 const paymentRouter = express.Router();
 
 // http://localhost:3000/api/payments/create_preference
-paymentRouter.post("/create_preference", createPreference);
+paymentRouter.post("/create_preference", auth, createPreference);
 
 // http://localhost:3000/api/payments/status/:paymentId
 paymentRouter.get("/status/:paymentId", getStatus);
@@ -24,4 +25,3 @@ paymentRouter.get("/pending", pendingReturn);
 paymentRouter.post("/notification", webhook);
 
 export default paymentRouter;
-
