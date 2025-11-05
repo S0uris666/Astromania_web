@@ -331,7 +331,6 @@ export const sendConfirmationEmailIfNeeded = async (payment) => {
       {
         $setOnInsert: {
           paymentId: paymentIdString,
-          status: "sending",
           createdAt: now,
         },
         $set: {
