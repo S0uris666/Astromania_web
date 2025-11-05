@@ -49,7 +49,7 @@ export const PaymentSuccess = () => {
           </h2>
           
           <p className="text-base-content/70 mb-4">
-            Tu pago ha sido procesado correctamente.
+            Tu pago ha sido procesado correctamente, te enviamos un correo de confirmación.
           </p>
 
           {paymentInfo && (
