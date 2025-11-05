@@ -82,6 +82,31 @@ const parseExternalReference = (value) => {
   return {};
 };
 
+const normalizeItems = (items) => {
+  if (!Array.isArray(items) || !items.length) return [];
+  return items
+    .map((item) => {
+      if (item && typeof item === "object") {
+        const quantity = Number(item.quantity || item.qty || 1);
+        const unitPrice =
+          Number(item.unit_price ?? item.unitPrice ?? item.price ?? item.unitPriceAmount ?? 0);
+        const title =
+          item.title ||
+          item.name ||
+          item.description ||
+          "";
+        if (!title) return null;
+        return {
+          title: String(title),
+          quantity: Number.isFinite(quantity) && quantity > 0 ? quantity : 1,
+          unit_price: Number.isFinite(unitPrice) ? unitPrice : 0,
+        };
+      }
+      return null;
+    })
+    .filter(Boolean);
+};
+
 const parseItemsFromMetadata = (metadata) => {
   const metadataItems = metadata?.orderItems;
   if (!metadataItems) return [];
@@ -91,12 +116,7 @@ const parseItemsFromMetadata = (metadata) => {
     if (typeof parsed === "string") {
       parsed = JSON.parse(parsed);
     }
-    if (!Array.isArray(parsed)) return [];
-    return parsed.map((item) => ({
-      title: item.title,
-      quantity: Number(item.quantity || 1),
-      unit_price: Number(item.unit_price || item.price || 0),
-    }));
+    return normalizeItems(Array.isArray(parsed) ? parsed : []);
   } catch (error) {
     console.error("Error parsing orderItems metadata:", error);
     return [];
@@ -188,12 +208,12 @@ const buildEmailHtml = (buyerName, itemsHtml, totalAmount, currencyId) => {
 
                 <!-- Soporte -->
                 <p style="margin:18px 0 0 0; font-size:13px; color:#6B7280; line-height:1.6;">
-                  Si necesitas asistencia, escr��benos a
+                  Si necesitas asistencia, escribenos a
                   <a href="mailto:contacto@astromania.cl" style="color:#6B7280; text-decoration:underline;">contacto@astromania.cl</a>.
                 </p>
 
                 <p style="margin:24px 0 0 0; font-size:13px; color:#6B7280;">
-                  Equipo Astroman��a
+                  Equipo Astromania
                 </p>
               </td>
             </tr>
@@ -202,8 +222,8 @@ const buildEmailHtml = (buyerName, itemsHtml, totalAmount, currencyId) => {
             <tr>
               <td style="padding:18px 28px 28px 28px; font-family:Arial, Helvetica, sans-serif; font-size:12px; color:#6B7280;">
                 <hr style="border:none; border-top:1px solid #E5E7EB; margin:0 0 12px 0;">
-                <p style="margin:0;">Este es un mensaje autom��tico. Por favor, no respondas a este correo.</p>
-                <p style="margin:4px 0 0 0;">�� ${new Date().getFullYear()} Astroman��a. Todos los derechos reservados.</p>
+                <p style="margin:0;">Este es un mensaje automatico. Por favor, no respondas a este correo.</p>
+                <p style="margin:4px 0 0 0;">�� ${new Date().getFullYear()} Astromania. Todos los derechos reservados.</p>
               </td>
             </tr>
           </table>
@@ -220,6 +240,7 @@ export {
   buildEmailHtml,
   extractMetadata,
   formatCurrency,
+  normalizeItems,
   parseExternalReference,
   parseItemsFromMetadata,
   unwrapSerializedString,

@@ -5,6 +5,7 @@ import {
   buildEmailHtml,
   extractMetadata,
   formatCurrency,
+  normalizeItems,
   parseExternalReference,
   parseItemsFromMetadata,
   unwrapSerializedString,
@@ -139,7 +140,24 @@ export const sendConfirmationEmailIfNeeded = async (payment) => {
     if (!payerEmail && !teamEmail) return;
 
     const currencyId = payment?.currency_id || "CLP";
-    const orderItems = parseItemsFromMetadata(metadata);
+    let orderItems = parseItemsFromMetadata(metadata);
+    if (!orderItems.length) {
+      const additionalInfoItems = normalizeItems(payment?.additional_info?.items);
+      const orderInfoItems = normalizeItems(payment?.order?.items);
+      if (additionalInfoItems.length) {
+        orderItems = additionalInfoItems;
+      } else if (orderInfoItems.length) {
+        orderItems = orderInfoItems;
+      } else if (payment?.description) {
+        orderItems = normalizeItems([
+          {
+            title: payment.description,
+            quantity: payment?.additional_info?.items?.[0]?.quantity || 1,
+            unit_price: payment?.transaction_amount ?? 0,
+          },
+        ]);
+      }
+    }
     const itemsHtml = orderItems.length
       ? orderItems
           .map(
