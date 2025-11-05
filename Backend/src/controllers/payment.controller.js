@@ -88,6 +88,17 @@ export const createPreference = async (req, res) => {
       metadata.buyerName = payerName;
     }
 
+    console.log("[payments] createPreference payload summary", {
+      requesterId,
+      metadataUserId: metadata.userId,
+      metadataBuyerEmail: metadata.buyerEmail,
+      metadataBuyerName: metadata.buyerName,
+      payerEmail,
+      payerName,
+      hasToken: !!req.cookies?.token,
+      authHeader: req.headers?.authorization ? "present" : "missing",
+    });
+
     const preference = await createPaymentPreference({
       ...body,
       payer: {
