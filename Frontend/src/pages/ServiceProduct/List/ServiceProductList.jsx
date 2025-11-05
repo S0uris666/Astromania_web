@@ -108,7 +108,7 @@ export const ServiceProductList = () => {
           <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-success text-[10px] font-bold text-success-content">4</span>
           <div>
             <p className="font-medium leading-tight">Confirmación</p>
-            <p className="text-xs text-base-content/70">Verás el detalle del pedido.</p>
+            <p className="text-xs text-base-content/70">Te enviaremos un correo de confirmacion.</p>
           </div>
         </li>
 
@@ -116,7 +116,7 @@ export const ServiceProductList = () => {
           <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-info text-[10px] font-bold text-info-content">5</span>
           <div>
             <p className="font-medium leading-tight">Coordinación de entrega</p>
-            <p className="text-xs text-base-content/70">Despacho o retiro y seguimiento.</p>
+            <p className="text-xs text-base-content/70">Nos contactamos contigo para el despacho.</p>
           </div>
         </li>
       </ol>
