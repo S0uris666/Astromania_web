@@ -1,7 +1,27 @@
+import mongoose from "mongoose";
 import { sendPurchaseConfirmationMail } from "../services/mailer.service.js";
 import User from "../models/User.model.js";
 
-const processedPayments = new Set();
+const paymentEmailLogSchema = new mongoose.Schema(
+  {
+    paymentId: { type: String, required: true, unique: true, index: true },
+    email: { type: String, required: true, trim: true, lowercase: true },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    status: {
+      type: String,
+      enum: ["pending", "sending", "sent", "failed"],
+      default: "pending",
+    },
+    attempts: { type: Number, default: 0 },
+    sentAt: { type: Date },
+    errorMessage: { type: String },
+  },
+  { timestamps: true },
+);
+
+const PaymentEmailLog =
+  mongoose.models.PaymentEmailLog ||
+  mongoose.model("PaymentEmailLog", paymentEmailLogSchema);
 
 const formatCurrency = (value, currency = "CLP") =>
   new Intl.NumberFormat("es-CL", {
@@ -229,13 +249,12 @@ const buildEmailHtml = (buyerName, itemsHtml, totalAmount, currencyId) => {
 };
 
 
-export const resetProcessedPayments = () => processedPayments.clear();
-
 export const sendConfirmationEmailIfNeeded = async (payment) => {
   try {
     if (!payment?.id) return;
-    if (processedPayments.has(payment.id)) return;
     if (payment.status !== "approved") return;
+
+    const paymentIdString = String(payment.id);
 
     if (process.env.NODE_ENV !== "production") {
       console.log("[payments] raw payment metadata", payment?.metadata);
@@ -267,12 +286,14 @@ export const sendConfirmationEmailIfNeeded = async (payment) => {
     const externalEmailRaw = externalRef?.buyerEmail || externalRef?.userEmail;
     const metadataEmail = unwrapSerializedString(metadataEmailRaw) || (typeof metadataEmailRaw === "string" ? metadataEmailRaw.trim() : "");
     const externalEmail = unwrapSerializedString(externalEmailRaw) || (typeof externalEmailRaw === "string" ? externalEmailRaw.trim() : "");
-    const additionalInfoEmail =
+    const additionalInfoEmail = (
       unwrapSerializedString(payment?.additional_info?.payer?.email) ||
       (typeof payment?.additional_info?.payer?.email === "string"
         ? payment.additional_info.payer.email.trim()
-        : "");
-    const payerRecordEmail = unwrapSerializedString(payment?.payer?.email) ||
+        : "")
+    );
+    const payerRecordEmail =
+      unwrapSerializedString(payment?.payer?.email) ||
       unwrapSerializedString(payment?.payer?.payer_email) ||
       payment?.payer?.email ||
       payment?.payer?.payer_email ||
@@ -290,7 +311,7 @@ export const sendConfirmationEmailIfNeeded = async (payment) => {
         metadata: metadata ? Object.keys(metadata) : null,
         externalRef,
       });
-    } else {
+    } else if (process.env.NODE_ENV !== "production") {
       console.log("[payments] Email del comprador resuelto", {
         paymentId: payment.id,
         resolvedEmail: payerEmail,
@@ -304,6 +325,42 @@ export const sendConfirmationEmailIfNeeded = async (payment) => {
       });
     }
 
+    const now = new Date();
+    const upsertResult = await PaymentEmailLog.findOneAndUpdate(
+      { paymentId: paymentIdString },
+      {
+        $setOnInsert: {
+          paymentId: paymentIdString,
+          status: "sending",
+          createdAt: now,
+        },
+        $set: {
+          email: payerEmail || process.env.SMTP_JP || "",
+          userId: userId || null,
+          status: "sending",
+          updatedAt: now,
+          errorMessage: null,
+        },
+        $inc: { attempts: 1 },
+      },
+      { upsert: true, new: false, rawResult: true },
+    );
+
+    const prevStatus = upsertResult.value?.status;
+    const alreadyHandled =
+      upsertResult.lastErrorObject?.updatedExisting &&
+      (prevStatus === "sent" || prevStatus === "sending");
+
+    if (alreadyHandled) {
+      if (process.env.NODE_ENV !== "production") {
+        console.log("[payments] Email ya gestionado, omitiendo reenvio", {
+          paymentId: paymentIdString,
+          prevStatus,
+        });
+      }
+      return;
+    }
+
     const teamEmail = process.env.SMTP_JP;
     if (!payerEmail && !teamEmail) return;
 
@@ -313,13 +370,13 @@ export const sendConfirmationEmailIfNeeded = async (payment) => {
       ? orderItems
           .map(
             (item) =>
-              `<li><strong>${item.title}</strong> x${item.quantity} - ${formatCurrency(
+              "<li><strong>" + item.title + "</strong> x" + item.quantity + " - " + formatCurrency(
                 item.unit_price,
                 currencyId,
-              )}</li>`,
+              ) + "</li>",
           )
           .join("")
-      : "<li>Tu compra se registró correctamente.</li>";
+      : "<li>Tu compra se registro correctamente.</li>";
 
     const totalAmount =
       payment?.transaction_amount ??
@@ -336,14 +393,38 @@ export const sendConfirmationEmailIfNeeded = async (payment) => {
 
     const html = buildEmailHtml(buyerName, itemsHtml, totalAmount, currencyId);
 
-    await sendPurchaseConfirmationMail({
-      to: payerEmail || teamEmail,
-      subject: "Confirmación de compra | Astromanía",
-      html,
-      bcc: payerEmail && teamEmail && payerEmail !== teamEmail ? teamEmail : undefined,
-    });
+    try {
+      await sendPurchaseConfirmationMail({
+        to: payerEmail || teamEmail,
+        subject: "Confirmacion de compra | Astromania",
+        html,
+        bcc: payerEmail && teamEmail && payerEmail !== teamEmail ? teamEmail : undefined,
+      });
 
-    processedPayments.add(payment.id);
+      await PaymentEmailLog.updateOne(
+        { paymentId: paymentIdString },
+        {
+          $set: {
+            status: "sent",
+            sentAt: new Date(),
+            email: payerEmail || teamEmail,
+            userId: userId || null,
+          },
+        },
+      );
+    } catch (mailError) {
+      await PaymentEmailLog.updateOne(
+        { paymentId: paymentIdString },
+        {
+          $set: {
+            status: "failed",
+            errorMessage: mailError?.message || String(mailError),
+            updatedAt: new Date(),
+          },
+        },
+      );
+      throw mailError;
+    }
   } catch (error) {
     console.error("Error sending purchase confirmation email:", error);
   }
