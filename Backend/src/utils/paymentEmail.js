@@ -18,6 +18,9 @@ const unwrapSerializedString = (value) => {
     if (value.value) {
       return unwrapSerializedString(value.value);
     }
+    if (Array.isArray(value)) {
+      return value.length ? unwrapSerializedString(value[0]) : "";
+    }
     return "";
   }
   if (value == null) return "";
@@ -58,6 +61,37 @@ const extractMetadata = (payment) => {
     }
   }
   return raw;
+};
+
+const parseExternalReference = (value) => {
+  if (!value || typeof value !== "string") return {};
+  const trimmed = value.trim();
+  if (!trimmed) return {};
+
+  const tryParseJson = (input) => {
+    try {
+      return JSON.parse(input);
+    } catch {
+      return null;
+    }
+  };
+
+  const parsedDirect = tryParseJson(trimmed);
+  if (parsedDirect && typeof parsedDirect === "object") {
+    return parsedDirect;
+  }
+
+  try {
+    const decoded = Buffer.from(trimmed, "base64").toString("utf8");
+    const parsedDecoded = tryParseJson(decoded);
+    if (parsedDecoded && typeof parsedDecoded === "object") {
+      return parsedDecoded;
+    }
+  } catch (error) {
+    // ignore
+  }
+
+  return {};
 };
 
 const parseItemsFromMetadata = (metadata) => {
@@ -209,7 +243,12 @@ export const sendConfirmationEmailIfNeeded = async (payment) => {
     }
 
     const metadata = extractMetadata(payment);
-    const userIdRaw = metadata?.userId ?? payment?.metadata?.userId;
+    const externalRef = parseExternalReference(payment?.external_reference);
+
+    const userIdRaw =
+      metadata?.userId ??
+      externalRef?.userId ??
+      payment?.metadata?.userId;
     const userId = unwrapSerializedString(userIdRaw) || (typeof userIdRaw === "string" ? userIdRaw : "");
     let userEmail = "";
 
@@ -225,7 +264,9 @@ export const sendConfirmationEmailIfNeeded = async (payment) => {
     }
 
     const metadataEmailRaw = metadata?.buyerEmail ?? payment?.metadata?.buyerEmail;
+    const externalEmailRaw = externalRef?.buyerEmail || externalRef?.userEmail;
     const metadataEmail = unwrapSerializedString(metadataEmailRaw) || (typeof metadataEmailRaw === "string" ? metadataEmailRaw.trim() : "");
+    const externalEmail = unwrapSerializedString(externalEmailRaw) || (typeof externalEmailRaw === "string" ? externalEmailRaw.trim() : "");
     const additionalInfoEmail =
       unwrapSerializedString(payment?.additional_info?.payer?.email) ||
       (typeof payment?.additional_info?.payer?.email === "string"
@@ -236,16 +277,18 @@ export const sendConfirmationEmailIfNeeded = async (payment) => {
       payment?.payer?.email ||
       payment?.payer?.payer_email ||
       "";
-    const payerEmail = userEmail || metadataEmail || additionalInfoEmail || payerRecordEmail || "";
+    const payerEmail = userEmail || metadataEmail || externalEmail || additionalInfoEmail || payerRecordEmail || "";
 
     if (!payerEmail) {
       console.warn("[payments] No se pudo resolver email del comprador", {
         paymentId: payment.id,
         userId,
         metadataEmail,
+        externalEmail,
         additionalInfoEmail,
         payerRecordEmail,
         metadata: metadata ? Object.keys(metadata) : null,
+        externalRef,
       });
     } else {
       console.log("[payments] Email del comprador resuelto", {
@@ -254,8 +297,10 @@ export const sendConfirmationEmailIfNeeded = async (payment) => {
         userId,
         userEmail,
         metadataEmail,
+        externalEmail,
         additionalInfoEmail,
         payerRecordEmail,
+        externalRef,
       });
     }
 

@@ -99,6 +99,23 @@ export const createPreference = async (req, res) => {
       authHeader: req.headers?.authorization ? "present" : "missing",
     });
 
+    const baseReference =
+      body.external_reference ||
+      `${metadata?.eventId || body?.metadata?.eventId || "event"}-${
+        metadata.userId || requesterId || "user"
+      }-${Date.now()}`;
+
+    const referencePayload = {
+      ref: baseReference,
+      userId: metadata.userId || requesterId || "",
+      buyerEmail: metadata.buyerEmail || payerEmail || "",
+      buyerName: metadata.buyerName || payerName || "",
+    };
+
+    const encodedReference = Buffer.from(JSON.stringify(referencePayload)).toString("base64");
+
+    metadata._ref = JSON.stringify(referencePayload);
+
     const preference = await createPaymentPreference({
       ...body,
       payer: {
@@ -108,8 +125,7 @@ export const createPreference = async (req, res) => {
       },
       metadata,
       external_reference:
-        body.external_reference ??
-        `${body?.metadata?.eventId || "event"}-${metadata.userId || requesterId || "user"}-${Date.now()}`,
+        encodedReference,
     });
 
     res.json(preference);
