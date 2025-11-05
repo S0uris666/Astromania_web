@@ -10,6 +10,16 @@ const formatCurrency = (value, currency = "CLP") =>
   }).format(Number(value || 0));
 
 const unwrapSerializedString = (value) => {
+  if (value === undefined || value === null) return "";
+  if (typeof value === "object") {
+    if (value.$oid) {
+      return String(value.$oid).trim();
+    }
+    if (value.value) {
+      return unwrapSerializedString(value.value);
+    }
+    return "";
+  }
   if (value == null) return "";
   if (typeof value === "object") {
     if (value.$oid) {
@@ -192,6 +202,11 @@ export const sendConfirmationEmailIfNeeded = async (payment) => {
     if (!payment?.id) return;
     if (processedPayments.has(payment.id)) return;
     if (payment.status !== "approved") return;
+
+    if (process.env.NODE_ENV !== "production") {
+      console.log("[payments] raw payment metadata", payment?.metadata);
+      console.log("[payments] raw payment additional_info", payment?.additional_info);
+    }
 
     const metadata = extractMetadata(payment);
     const userIdRaw = metadata?.userId ?? payment?.metadata?.userId;
