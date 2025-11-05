@@ -200,7 +200,8 @@ const buildEmailHtml = (buyerName, itemsHtml, totalAmount, currencyId) => {
                   Si necesitas asistencia, escribenos a
                   <a href="mailto:juanpablo@astromania.cl" style="color:#6B7280; text-decoration:underline;">juanpablo@astromania.cl</a>.
                 </p>
-                <Pronto te contactaremos para coordinar los detalles de tu compra.</p>
+                <p style="margin:18px 0 0 0; font-size:13px; color:#6B7280; line-height:1.6;">
+                Pronto te contactaremos para coordinar los detalles de tu compra.</p>
 
                 <p style="margin:24px 0 0 0; font-size:13px; color:#6B7280;">
                   Equipo Astromania
