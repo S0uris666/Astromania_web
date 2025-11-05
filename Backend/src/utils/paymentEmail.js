@@ -326,7 +326,19 @@ export const sendConfirmationEmailIfNeeded = async (payment) => {
     }
 
     const now = new Date();
-    const upsertResult = await PaymentEmailLog.findOneAndUpdate(
+    const existingLog = await PaymentEmailLog.findOne({ paymentId: paymentIdString }).lean();
+
+    if (existingLog && (existingLog.status === "sent" || existingLog.status === "sending")) {
+      if (process.env.NODE_ENV !== "production") {
+        console.log("[payments] Email ya gestionado, omitiendo reenvio", {
+          paymentId: paymentIdString,
+          prevStatus: existingLog.status,
+        });
+      }
+      return;
+    }
+
+    await PaymentEmailLog.updateOne(
       { paymentId: paymentIdString },
       {
         $setOnInsert: {
@@ -342,23 +354,8 @@ export const sendConfirmationEmailIfNeeded = async (payment) => {
         },
         $inc: { attempts: 1 },
       },
-      { upsert: true, new: false, rawResult: true },
+      { upsert: true },
     );
-
-    const prevStatus = upsertResult.value?.status;
-    const alreadyHandled =
-      upsertResult.lastErrorObject?.updatedExisting &&
-      (prevStatus === "sent" || prevStatus === "sending");
-
-    if (alreadyHandled) {
-      if (process.env.NODE_ENV !== "production") {
-        console.log("[payments] Email ya gestionado, omitiendo reenvio", {
-          paymentId: paymentIdString,
-          prevStatus,
-        });
-      }
-      return;
-    }
 
     const teamEmail = process.env.SMTP_JP;
     if (!payerEmail && !teamEmail) return;
