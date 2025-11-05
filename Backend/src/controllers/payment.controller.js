@@ -161,10 +161,6 @@ export const getStatus = async (req, res) => {
 export const successReturn = async (req, res) => {
   try {
     const paymentId = req.query.payment_id || req.query.id;
-    if (paymentId) {
-      const payment = await getPaymentById(paymentId);
-      await sendConfirmationEmailIfNeeded(payment);
-    }
   } catch (error) {
     console.error("Error handling successReturn:", error);
   }
