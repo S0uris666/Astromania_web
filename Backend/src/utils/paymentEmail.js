@@ -86,36 +86,54 @@ export const sendConfirmationEmailIfNeeded = async (payment) => {
     }
 
     const now = new Date();
-    const existingLog = await PaymentEmailLog.findOne({ paymentId: paymentIdString }).lean();
+    let logEntry;
+    try {
+      logEntry = await PaymentEmailLog.findOneAndUpdate(
+        {
+          paymentId: paymentIdString,
+          status: { $nin: ["sending", "sent"] },
+        },
+        {
+          $setOnInsert: {
+            paymentId: paymentIdString,
+            createdAt: now,
+          },
+          $set: {
+            email: payerEmail || process.env.SMTP_JP || "",
+            userId: userId || null,
+            status: "sending",
+            updatedAt: now,
+            errorMessage: null,
+          },
+          $inc: { attempts: 1 },
+        },
+        {
+          upsert: true,
+          new: true,
+          setDefaultsOnInsert: true,
+        },
+      );
+    } catch (dbError) {
+      if (dbError?.code === 11000) {
+        if (process.env.NODE_ENV !== "production") {
+          console.log("[payments] Email ya en curso (duplicate key). Omitiendo envio.", {
+            paymentId: paymentIdString,
+          });
+        }
+        return;
+      }
+      throw dbError;
+    }
 
-    if (existingLog && (existingLog.status === "sent" || existingLog.status === "sending")) {
+    if (!logEntry) {
       if (process.env.NODE_ENV !== "production") {
         console.log("[payments] Email ya gestionado, omitiendo reenvio", {
           paymentId: paymentIdString,
-          prevStatus: existingLog.status,
+          prevStatus: "unknown",
         });
       }
       return;
     }
-
-    await PaymentEmailLog.updateOne(
-      { paymentId: paymentIdString },
-      {
-        $setOnInsert: {
-          paymentId: paymentIdString,
-          createdAt: now,
-        },
-        $set: {
-          email: payerEmail || process.env.SMTP_JP || "",
-          userId: userId || null,
-          status: "sending",
-          updatedAt: now,
-          errorMessage: null,
-        },
-        $inc: { attempts: 1 },
-      },
-      { upsert: true },
-    );
 
     const teamEmail = process.env.SMTP_JP;
     if (!payerEmail && !teamEmail) return;
